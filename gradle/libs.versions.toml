@@ -12,6 +12,8 @@ hilt = "2.49"
 hiltNavigationCompose = "1.2.0"
 ksp = "1.9.0-1.0.13"
 room = "2.6.1"
+mockitoKotlin = "5.2.1"
+coroutineTestVersion = "1.7.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,6 +41,12 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+
+## Coroutine unit test – to unit test coroutines
+coroutine-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test-jvm", version.ref = "coroutineTestVersion" }
+
+## Mockito – to mock Dao/repository class in unit tests
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

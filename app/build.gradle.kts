@@ -74,6 +74,12 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    // Coroutine unit test dependency
+    testImplementation(libs.coroutine.test)
+
+    // Mockito
+    testImplementation(libs.mockito.kotlin)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
