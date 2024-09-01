@@ -1,8 +1,8 @@
 package com.an.notesapp.ui.viewmodel
 
+import app.cash.turbine.test
 import com.an.notesapp.BaseUnitTest
 import com.an.notesapp.db.Note
-import com.an.notesapp.db.NoteDao
 import com.an.notesapp.repository.NoteRepository
 import com.an.notesapp.util.hashedString
 import kotlinx.coroutines.flow.flow
@@ -15,8 +15,7 @@ import org.mockito.Mockito.`when`
 import java.time.OffsetDateTime
 
 class NoteViewModelTest: BaseUnitTest() {
-    private val dao: NoteDao = mock()
-    private val repository: NoteRepository = NoteRepository(dao)
+    private val repository: NoteRepository = mock()
 
     private val expectedNotes = listOf(
         Note(
@@ -43,10 +42,12 @@ class NoteViewModelTest: BaseUnitTest() {
             .withLoadedData()
             .build()
 
-        val notes = viewModel.notesUiState.value
-        assertEquals(expectedNotes.size, notes.notes.size)
-        assertEquals(expectedNotes[0], notes.notes.first())
-        assertEquals(expectedNotes[1], notes.notes.last())
+        viewModel.notes.test {
+            val notes = awaitItem()
+            assertEquals(expectedNotes.size, notes.size)
+            assertEquals(expectedNotes[0], notes.first())
+            assertEquals(expectedNotes[1], notes.last())
+        }
     }
 
     @Test
@@ -55,22 +56,21 @@ class NoteViewModelTest: BaseUnitTest() {
             .withEmptyData()
             .build()
 
-        val notes = viewModel.notesUiState.value
-        assertTrue(notes.isEmpty)
-        assertTrue(notes.notes.isEmpty())
+        val notes = viewModel.notes.value
+        assertTrue(notes.isEmpty())
     }
 
     private inner class ViewModelBuilder {
         fun build() = NoteViewModel(repository)
 
         fun withEmptyData(): ViewModelBuilder {
-            `when`(dao.fetchAllNotes()).thenReturn(
+            `when`(repository.getNotes()).thenReturn(
                 flow { emit(emptyList()) }
             )
             return this
         }
         fun withLoadedData(): ViewModelBuilder {
-            `when`(dao.fetchAllNotes()).thenReturn(
+            `when`(repository.getNotes()).thenReturn(
                 flow { emit(expectedNotes) }
             )
             return this

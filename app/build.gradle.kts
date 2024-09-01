@@ -80,6 +80,9 @@ dependencies {
     // Mockito
     testImplementation(libs.mockito.kotlin)
 
+    // Turbine
+    testImplementation(libs.turbine)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

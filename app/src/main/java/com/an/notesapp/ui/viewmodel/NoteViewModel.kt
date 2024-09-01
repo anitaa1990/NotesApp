@@ -7,9 +7,10 @@ import com.an.notesapp.repository.NoteRepository
 import com.an.notesapp.util.hashedString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 import javax.inject.Inject
@@ -18,17 +19,21 @@ import javax.inject.Inject
 class NoteViewModel @Inject constructor(
     private val repository: NoteRepository
 ) : ViewModel() {
-    private val _notesUiState = MutableStateFlow(NoteUiState())
-    val notesUiState = _notesUiState.asStateFlow()
-
-    init { getNotes() }
-    private fun getNotes() {
-        viewModelScope.launch {
-            repository.getNotes().distinctUntilChanged().collect {
-                _notesUiState.value = NoteUiState(isEmpty = it.isEmpty(), notes = it)
-            }
-        }
-    }
+    // StateFlow is a hot flow is created using the `stateIn` method combined with
+    // `SharingStarted.WhileSubscribed`. This ensures that sharing begins when the first subscriber
+    // appears and stops immediately when the last subscriber disappears,
+    // based on the specified `stopTimeoutMillis` parameter. As a result, the hot flows will start
+    // emitting values as soon as the first subscriber appears from the UI layer, ensuring that
+    // initial data is loaded only when the UI actually needs it. This approach prevents
+    // unnecessary data fetching when it’s not required and stops emitting values when the last
+    // subscriber disappears.
+    // viewModelScope is used to launch a coroutine within the viewModel lifecycle.
+    val notes: StateFlow<List<Note>> =
+        repository.getNotes().distinctUntilChanged().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
 
     /**
      * This function is used to add a new note to the database.
@@ -80,9 +85,4 @@ class NoteViewModel @Inject constructor(
             repository.deleteNote(note)
         }
     }
-
-    data class NoteUiState(
-        val isEmpty: Boolean = true,
-        val notes: List<Note> = emptyList()
-    )
 }
