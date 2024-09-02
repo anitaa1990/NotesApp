@@ -74,6 +74,9 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    // lifecycle compose
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     // Coroutine unit test dependency
     testImplementation(libs.coroutine.test)
 
