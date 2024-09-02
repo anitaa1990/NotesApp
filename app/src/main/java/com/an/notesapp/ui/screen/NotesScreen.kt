@@ -53,17 +53,30 @@ fun NotesScreen(
         lifecycleOwner = LocalLifecycleOwner.current
     )
 
-    if (notes.value.isEmpty()) {
-        EmptyScreen()
-    } else {
-        LazyVerticalStaggeredGrid(
-            modifier = Modifier.padding(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
+    Box(modifier = Modifier) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 60.dp, bottom = 20.dp, start = 12.dp, end = 12.dp)
         ) {
-            items(notes.value.size) {
-                val note = notes.value[it]
-                NoteItem(note, onNoteItemClicked)
+            Text(
+                text = stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.displayMedium
+            )
+
+            if (notes.value.isEmpty()) {
+                EmptyScreen()
+            } else {
+                LazyVerticalStaggeredGrid(
+                    modifier = Modifier.padding(top = 30.dp, bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
+                ) {
+                    items(notes.value.size) {
+                        val note = notes.value[it]
+                        NoteItem(note, onNoteItemClicked)
+                    }
+                }
             }
         }
     }

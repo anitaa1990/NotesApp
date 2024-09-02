@@ -1,16 +1,21 @@
 package com.an.notesapp.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -20,7 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,7 +34,8 @@ import com.an.notesapp.ui.viewmodel.NoteDetailViewModel
 
 @Composable
 fun NoteDetailScreen(
-    viewModel: NoteDetailViewModel
+    viewModel: NoteDetailViewModel,
+    onCloseClicked: () -> Unit
 ) {
     val note = viewModel.note.collectAsStateWithLifecycle(
         lifecycleOwner = LocalLifecycleOwner.current
@@ -43,6 +49,18 @@ fun NoteDetailScreen(
                 .padding(12.dp)
                 .fillMaxWidth()
         ) {
+            val appBarTitle = if (note.value == null) {
+                stringResource(id = R.string.add_new_note)
+            } else stringResource(id = R.string.note_detail_title)
+
+            CustomTopAppBar(
+                title = appBarTitle,
+                onCloseClicked = onCloseClicked
+            ) {
+                viewModel.addOrUpdateNote()
+                onCloseClicked()
+            }
+
             // Note title
             TextField(
                 modifier = Modifier
@@ -84,43 +102,51 @@ fun NoteDetailScreen(
                     disabledIndicatorColor = Color.Transparent
                 )
             )
-            
-            // Note encrypt checkbox
-            Row(
-                modifier = Modifier.padding(top = 15.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = note.value?.encrypt ?: false,
-                    onCheckedChange = { viewModel.encrypt(it) },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.colorScheme.primary ,
-                        uncheckedColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                )
-                Text(
-                    text = stringResource(id = R.string.add_note_encrypt),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                // Note password, if needed
-                TextField(
-                    modifier = Modifier.padding(start = 6.dp),
-                    value = note.value?.password ?: "",
-                    onValueChange = { viewModel.updatePassword(it) },
-                    placeholder = { Text(stringResource(id = R.string.add_note_password)) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colorScheme.outline,
-                        fontSize = 18.sp
-                    ),
-                    enabled = note.value?.encrypt ?: false,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                )
-            }
         }
     }
+}
+    
+@Composable
+fun CustomTopAppBar(
+    title: String,
+    onCloseClicked: () -> Unit,
+    onDoneClicked: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp, bottom = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        IconButton(
+            onClick = onCloseClicked
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.size(30.dp)
+            )
+        }
+
+        Text(
+            text = title,
+            style = MaterialTheme.typography.displaySmall
+        )
+        
+        TextButton(onClick = onDoneClicked) {
+            Text(
+                text = stringResource(id = R.string.done_button),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.outline
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CustomTopAppBarPreview() {
+    CustomTopAppBar(title = "Add new note", { }, { })
 }

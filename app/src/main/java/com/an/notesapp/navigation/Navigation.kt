@@ -40,7 +40,9 @@ fun Navigation(
                 navArgument(ROUTE_DETAIL_ARG_NAME) { type = NavType.LongType },
             ),
         ) {
-            NoteDetailScreen(hiltViewModel<NoteDetailViewModel>())
+            NoteDetailScreen(hiltViewModel<NoteDetailViewModel>()) {
+                navController.navigateUp()
+            }
         }
     }
 }
