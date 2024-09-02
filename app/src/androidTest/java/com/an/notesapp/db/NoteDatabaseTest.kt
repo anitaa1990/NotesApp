@@ -96,10 +96,19 @@ class NoteDatabaseTest: TestCase() {
 
         // update
         dao.updateNote(updatedNote)
-        // get note and assert if it equals to updated word
-        val storedNote = dao.getNote(updatedNote.id)
-        assertEquals(storedNote, updatedNote)
-        assertNotSame(storedNote, note)
+
+        val latch = CountDownLatch(1)
+        val job = async(Dispatchers.IO) {
+            // get note and assert if it equals to updated word
+            dao.getNote(updatedNote.id).collect {
+                assertEquals(it, updatedNote)
+                assertNotSame(it, note)
+
+                latch.countDown()
+            }
+        }
+        latch.await()
+        job.cancelAndJoin()
     }
 
     @Test
