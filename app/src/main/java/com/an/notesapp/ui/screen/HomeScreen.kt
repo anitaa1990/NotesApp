@@ -28,10 +28,7 @@ fun HomeScreen(
     NotesAppTheme {
         Scaffold(
             topBar = {
-                MainAppBar(
-                    canNavigateBack = navController.previousBackStackEntry != null,
-                    navigateUp = { navController.navigateUp() }
-                )
+                MainTopAppBar(navController = navController)
             },
         ) { innerPadding ->
             Navigation(

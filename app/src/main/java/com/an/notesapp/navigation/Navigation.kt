@@ -1,7 +1,10 @@
 package com.an.notesapp.navigation
 
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -11,8 +14,11 @@ import androidx.navigation.navArgument
 import com.an.notesapp.Constants.ROUTE_DETAIL_ARG_NAME
 import com.an.notesapp.Constants.ROUTE_DETAIL_PATH
 import com.an.notesapp.Constants.ROUTE_HOME
+import com.an.notesapp.R
 import com.an.notesapp.ui.screen.NoteDetailScreen
 import com.an.notesapp.ui.screen.NotesScreen
+import com.an.notesapp.ui.screen.ProvideAppBarAction
+import com.an.notesapp.ui.screen.ProvideAppBarTitle
 import com.an.notesapp.ui.viewmodel.NoteDetailViewModel
 import com.an.notesapp.ui.viewmodel.NoteViewModel
 

@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -31,6 +33,13 @@ import com.an.notesapp.ui.viewmodel.NoteDetailViewModel
 fun NoteDetailScreen(
     viewModel: NoteDetailViewModel
 ) {
+    ProvideAppBarTitle { Text(stringResource(id = R.string.add_note_title)) }
+    ProvideAppBarAction {
+        TextButton(onClick = { /*TODO*/ }) {
+            Text(text = stringResource(id = R.string.done_button))
+        }
+    }
+
     val note = viewModel.note.collectAsStateWithLifecycle(
         lifecycleOwner = LocalLifecycleOwner.current
     )

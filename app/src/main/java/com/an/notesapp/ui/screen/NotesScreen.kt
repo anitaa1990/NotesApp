@@ -49,6 +49,8 @@ fun NotesScreen(
     viewModel: NoteViewModel,
     onNoteItemClicked: (noteId: Long) -> Unit
 ) {
+    ProvideAppBarTitle { Text(stringResource(id = R.string.app_name)) }
+
     val notes = viewModel.notes.collectAsStateWithLifecycle(
         lifecycleOwner = LocalLifecycleOwner.current
     )
