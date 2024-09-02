@@ -3,4 +3,8 @@
     <string name="back_button">Back</string>
     <string name="note_list_date" formatted="false">%s, %s</string>
     <string name="note_list_empty">Once you add some notes you will find it here</string>
+    <string name="add_note_title">Title</string>
+    <string name="add_note_desc">Description</string>
+    <string name="add_note_encrypt">Lock note</string>
+    <string name="add_note_password">Password</string>
 </resources>
