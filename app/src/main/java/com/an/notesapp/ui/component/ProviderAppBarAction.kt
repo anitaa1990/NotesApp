@@ -1,4 +1,4 @@
-package com.an.notesapp.ui.screen
+package com.an.notesapp.ui.component
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable

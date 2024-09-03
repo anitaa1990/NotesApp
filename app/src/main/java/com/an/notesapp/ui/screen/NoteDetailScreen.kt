@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.notesapp.R
+import com.an.notesapp.ui.component.ProvideAppBarAction
+import com.an.notesapp.ui.component.ProvideAppBarTitle
 import com.an.notesapp.ui.viewmodel.NoteDetailViewModel
 
 @Composable

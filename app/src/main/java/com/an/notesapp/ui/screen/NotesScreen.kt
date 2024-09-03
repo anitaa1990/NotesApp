@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.notesapp.R
 import com.an.notesapp.db.Note
+import com.an.notesapp.ui.component.ProvideAppBarTitle
 import com.an.notesapp.ui.viewmodel.NoteViewModel
 import com.an.notesapp.util.getDate
 import com.an.notesapp.util.getTime
