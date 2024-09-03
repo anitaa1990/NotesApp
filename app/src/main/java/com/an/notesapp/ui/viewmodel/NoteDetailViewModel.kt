@@ -22,7 +22,8 @@ class NoteDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: NoteRepository
 ) : ViewModel() {
-    private val noteId: Long? = savedStateHandle["noteId"]
+    // "noteId" is nullable because noteId can be null when adding a new note
+    private val noteId: String? = savedStateHandle["noteId"]
 
     // This is a mutable state flow that will be used internally in the viewmodel,
     private val _noteUiState = MutableStateFlow(NoteDetailUiState())
@@ -34,7 +35,7 @@ class NoteDetailViewModel @Inject constructor(
 
     private fun getNote() = viewModelScope.launch {
         noteId?.let {
-            repository.getNote(it).collect { note ->
+            repository.getNote(it.toLong()).collect { note ->
                 _noteUiState.emit(
                     NoteDetailUiState(
                         note = note.toUiModel(),

@@ -31,9 +31,7 @@ fun HomeScreen(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.primary,
                     onClick = {
-                        navController.navigate(
-                            Constants.ROUTE_DETAIL_PATH.replace("{${Constants.ROUTE_DETAIL_ARG_NAME}}", "0L")
-                        )
+                        navController.navigate(Constants.ROUTE_DETAIL_PATH)
                     }
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Add")
