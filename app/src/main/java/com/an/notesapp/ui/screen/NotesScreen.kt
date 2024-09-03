@@ -109,7 +109,7 @@ fun NoteItem(
                 .fillMaxWidth()
                 .padding(10.dp)) {
                 Row(
-                    verticalAlignment = Alignment.Top,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight(),
@@ -144,7 +144,7 @@ fun NoteItem(
                     fontSize = 16.sp,
                     modifier = Modifier.padding(top = 4.dp, end = 8.dp),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    maxLines = 2,
+                    maxLines = 4,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
