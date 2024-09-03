@@ -17,16 +17,16 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -55,17 +55,34 @@ fun NotesScreen(
         lifecycleOwner = LocalLifecycleOwner.current
     )
 
-    if (notes.value.isEmpty()) {
-        EmptyScreen()
-    } else {
-        LazyVerticalStaggeredGrid(
-            modifier = Modifier.padding(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
+    Box(modifier = Modifier) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 60.dp, bottom = 20.dp, start = 12.dp, end = 12.dp)
         ) {
-            items(notes.value.size) {
-                val note = notes.value[it]
-                NoteItem(note, onNoteItemClicked)
+            Text(
+                text = stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.displayMedium
+            )
+
+            if (notes.value.isEmpty()) {
+                EmptyScreen()
+            } else {
+                LazyVerticalStaggeredGrid(
+                    modifier = Modifier.padding(top = 30.dp, bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
+                ) {
+                    items(notes.value.size) {
+                        val note = notes.value[it]
+                        NoteItem(
+                            note = note,
+                            onNoteItemClicked = onNoteItemClicked,
+                            onNoteItemDeleted = { viewModel.deleteNote(note) }
+                        )
+                    }
+                }
             }
         }
     }
@@ -74,7 +91,8 @@ fun NotesScreen(
 @Composable
 fun NoteItem(
     note: Note,
-    onNoteItemClicked: (noteId: Long) -> Unit
+    onNoteItemClicked: (noteId: Long) -> Unit,
+    onNoteItemDeleted: (note: Note) -> Unit
 ) {
     Box(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
@@ -112,21 +130,31 @@ fun NoteItem(
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                     )
-                    Icon(
-                        imageVector = Icons.Filled.Lock,
-                        contentDescription = "",
-                        tint = MaterialTheme.colorScheme.outline,
-                        modifier = Modifier
-                            .size(25.dp)
-                            .alpha(if (note.encrypt) 0.8f else 0f)
-                    )
+                    IconButton(
+                        onClick = { onNoteItemDeleted(note) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "",
+                            tint = MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
+                Text(
+                    text = note.description,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(top = 4.dp, end = 8.dp),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Text(
                     text = String.format(
                         stringResource(id = R.string.note_list_date),
                         note.createdAt.getDate(), note.createdAt.getTime()
                     ),
-                    fontSize = 15.sp,
+                    fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp, end = 8.dp),
                     color = MaterialTheme.colorScheme.outline
                 )
@@ -176,8 +204,10 @@ fun NoteItemPreview() {
             password = null,
             createdAt = OffsetDateTime.now(),
             modifiedAt = OffsetDateTime.now()
-        )
-    ) {  }
+        ),
+        { },
+        { }
+    )
 }
 
 @Preview
