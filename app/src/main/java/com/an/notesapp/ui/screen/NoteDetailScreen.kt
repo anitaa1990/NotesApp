@@ -27,21 +27,20 @@ import com.an.notesapp.ui.viewmodel.NoteDetailViewModel
 fun NoteDetailScreen(
     viewModel: NoteDetailViewModel
 ) {
-    val note = viewModel.note.collectAsStateWithLifecycle(
+    val noteUiState = viewModel.noteUiState.collectAsStateWithLifecycle(
         lifecycleOwner = LocalLifecycleOwner.current
     )
 
-    val appBarTitle = if (note.value?.title == null) {
-        stringResource(id = R.string.add_new_note)
-    } else stringResource(id = R.string.note_detail_title)
-
+    // Toolbar title
     ProvideAppBarTitle {
         Text(
-            text = appBarTitle,
+            text = stringResource(id = noteUiState.value.toolbarTitle),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSecondaryContainer
         )
     }
+
+    // Toolbar action button: Done
     ProvideAppBarAction {
         TextButton( onClick = viewModel::addOrUpdateNote ) {
             Text(
@@ -53,7 +52,8 @@ fun NoteDetailScreen(
     }
 
     Box(
-        modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
+        modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -65,7 +65,7 @@ fun NoteDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 20.dp),
-                value = note.value?.title ?: "",
+                value = noteUiState.value.note.title,
                 onValueChange = { viewModel.updateNoteTitle(it) },
                 placeholder = { Text(stringResource(id = R.string.add_note_title)) },
                 textStyle = TextStyle(
@@ -86,7 +86,7 @@ fun NoteDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 180.dp),
-                value = note.value?.description ?: "",
+                value = noteUiState.value.note.description,
                 onValueChange = { viewModel.updateNoteDesc(it) },
                 placeholder = { Text(stringResource(id = R.string.add_note_desc)) },
                 textStyle = TextStyle(

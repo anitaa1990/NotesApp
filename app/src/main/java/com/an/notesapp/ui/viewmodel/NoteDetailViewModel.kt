@@ -3,9 +3,12 @@ package com.an.notesapp.ui.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.an.notesapp.R
 import com.an.notesapp.db.Note
 import com.an.notesapp.repository.NoteRepository
-import com.an.notesapp.util.hashedString
+import com.an.notesapp.ui.model.NoteUiModel
+import com.an.notesapp.ui.model.toNote
+import com.an.notesapp.ui.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,40 +22,49 @@ class NoteDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: NoteRepository
 ) : ViewModel() {
-    private val noteId: Long = checkNotNull(savedStateHandle["noteId"])
+    private val noteId: Long? = savedStateHandle["noteId"]
 
     // This is a mutable state flow that will be used internally in the viewmodel,
-    // null is given as initial value
-    private val _note = MutableStateFlow<Note?>(null)
+    private val _noteUiState = MutableStateFlow(NoteDetailUiState())
 
     // Immutable state flow that is exposed to the UI
-    val note = _note.asStateFlow()
+    val noteUiState = _noteUiState.asStateFlow()
 
     init { getNote() }
 
     private fun getNote() = viewModelScope.launch {
-        if (noteId == 0L) {
-            _note.emit(createEmptyNote())
-        } else {
-            repository.getNote(noteId).collect {
-                _note.emit(it)
+        noteId?.let {
+            repository.getNote(it).collect { note ->
+                _noteUiState.emit(
+                    NoteDetailUiState(
+                        note = note.toUiModel(),
+                        toolbarTitle = R.string.note_detail_title
+                    )
+                )
             }
-        }
+        } ?: _noteUiState.emit(
+            NoteDetailUiState(
+                toolbarTitle = R.string.add_new_note
+            )
+        )
     }
 
     fun updateNoteTitle(title: String) {
-        _note.value = _note.value?.copy(title = title)
+        _noteUiState.value = _noteUiState.value.copy(
+            note = _noteUiState.value.note.copy(title = title)
+        )
     }
 
     fun updateNoteDesc(desc: String) {
-        _note.value = _note.value?.copy(description = desc)
+        _noteUiState.value = _noteUiState.value.copy(
+            note = _noteUiState.value.note.copy(description = desc)
+        )
     }
 
     fun addOrUpdateNote() {
-        _note.value?.let {
-            if (noteId == 0L) addNote(it)
-            else updateNote(it)
-        }
+        noteId?.let {
+            updateNote(_noteUiState.value.note.toNote())
+        } ?: addNote(_noteUiState.value.note.toNote())
     }
 
     /**
@@ -76,20 +88,16 @@ class NoteDetailViewModel @Inject constructor(
      * 3. repository.insertNote(note) is used to add the note to the database.
      */
     private fun addNote(note: Note) {
-        val updatedNote = note.copy(
-            createdAt = OffsetDateTime.now(),
-            modifiedAt = OffsetDateTime.now(),
-            password = note.password?.let { it.hashedString() }
-        )
-        viewModelScope.launch(Dispatchers.IO) { repository.insertNote(updatedNote) }
+        viewModelScope.launch(Dispatchers.IO) { repository.insertNote(note) }
     }
 
-    private fun createEmptyNote() = Note(
-        title = "",
-        description = "",
-        encrypt = false,
-        password = null,
-        createdAt = OffsetDateTime.now(),
-        modifiedAt = OffsetDateTime.now()
+    data class NoteDetailUiState(
+        val note: NoteUiModel = NoteUiModel(
+            noteId = 0L,
+            title = "",
+            description = "",
+            createdAt = OffsetDateTime.now()
+        ),
+        val toolbarTitle: Int = 0
     )
 }
