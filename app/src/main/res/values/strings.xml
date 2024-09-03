@@ -10,4 +10,7 @@
     <string name="add_note_desc">Description</string>
     <string name="add_note_encrypt">Lock note</string>
     <string name="add_note_password">Password</string>
+    <string name="add_note_success">Note added</string>
+    <string name="update_note_success">Note updated</string>
+    <string name="delete_note_success">Note deleted</string>
 </resources>

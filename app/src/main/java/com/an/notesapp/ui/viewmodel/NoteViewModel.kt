@@ -1,7 +1,7 @@
 package com.an.notesapp.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.an.notesapp.R
 import com.an.notesapp.db.Note
 import com.an.notesapp.repository.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NoteViewModel @Inject constructor(
     private val repository: NoteRepository
-) : ViewModel() {
+) : BaseViewModel() {
     // StateFlow is a hot flow is created using the `stateIn` method combined with
     // `SharingStarted.WhileSubscribed`. This ensures that sharing begins when the first subscriber
     // appears and stops immediately when the last subscriber disappears,
@@ -44,5 +44,6 @@ class NoteViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) { //this: CoroutineScope
             repository.deleteNote(note)
         }
+        triggerEvent(Event.ShowSnackbar(R.string.delete_note_success))
     }
 }

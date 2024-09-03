@@ -1,7 +1,6 @@
 package com.an.notesapp.ui.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.an.notesapp.R
 import com.an.notesapp.db.Note
@@ -21,7 +20,7 @@ import javax.inject.Inject
 class NoteDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: NoteRepository
-) : ViewModel() {
+) : BaseViewModel() {
     // "noteId" is nullable because noteId can be null when adding a new note
     private val noteId: String? = savedStateHandle["noteId"]
 
@@ -63,9 +62,14 @@ class NoteDetailViewModel @Inject constructor(
     }
 
     fun addOrUpdateNote() {
-        noteId?.let {
+        if (noteId == null) {
+            addNote(_noteUiState.value.note.toNote())
+            triggerEvent(Event.ShowSnackbar(R.string.add_note_success))
+        } else {
             updateNote(_noteUiState.value.note.toNote())
-        } ?: addNote(_noteUiState.value.note.toNote())
+            triggerEvent(Event.ShowSnackbar(R.string.update_note_success))
+        }
+        triggerEventWithDelay(Event.ExitScreen)
     }
 
     /**

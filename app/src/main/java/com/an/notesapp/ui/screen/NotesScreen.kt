@@ -53,7 +53,9 @@ fun NotesScreen(
     // Toolbar title
     ProvideAppBarTitle {
         Text(
-            modifier = Modifier.fillMaxWidth().padding(top = 25.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 25.dp),
             text = stringResource(id = R.string.app_name),
             style = MaterialTheme.typography.displaySmall,
             color = MaterialTheme.colorScheme.onSecondaryContainer
