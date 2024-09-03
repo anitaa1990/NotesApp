@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,40 +50,35 @@ fun NotesScreen(
     viewModel: NoteViewModel,
     onNoteItemClicked: (noteId: Long) -> Unit
 ) {
-    ProvideAppBarTitle { Text(stringResource(id = R.string.app_name)) }
+    // Toolbar title
+    ProvideAppBarTitle {
+        Text(
+            modifier = Modifier.fillMaxWidth().padding(top = 25.dp),
+            text = stringResource(id = R.string.app_name),
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    }
 
     val notes = viewModel.notes.collectAsStateWithLifecycle(
         lifecycleOwner = LocalLifecycleOwner.current
     )
 
-    Box(modifier = Modifier) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 60.dp, bottom = 20.dp, start = 12.dp, end = 12.dp)
+    if (notes.value.isEmpty()) {
+        EmptyScreen()
+    } else {
+        LazyVerticalStaggeredGrid(
+            modifier = Modifier.padding(top = 30.dp, bottom = 10.dp, start = 12.dp, end = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
         ) {
-            Text(
-                text = stringResource(id = R.string.app_name),
-                style = MaterialTheme.typography.displayMedium
-            )
-
-            if (notes.value.isEmpty()) {
-                EmptyScreen()
-            } else {
-                LazyVerticalStaggeredGrid(
-                    modifier = Modifier.padding(top = 30.dp, bottom = 10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
-                ) {
-                    items(notes.value.size) {
-                        val note = notes.value[it]
-                        NoteItem(
-                            note = note,
-                            onNoteItemClicked = onNoteItemClicked,
-                            onNoteItemDeleted = { viewModel.deleteNote(note) }
-                        )
-                    }
-                }
+            items(notes.value.size) {
+                val note = notes.value[it]
+                NoteItem(
+                    note = note,
+                    onNoteItemClicked = onNoteItemClicked,
+                    onNoteItemDeleted = { viewModel.deleteNote(note) }
+                )
             }
         }
     }
@@ -109,7 +105,7 @@ fun NoteItem(
         ) {
             Column (modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)) {
+                .padding(start = 15.dp, top = 6.dp, bottom = 6.dp)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier

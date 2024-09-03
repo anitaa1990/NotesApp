@@ -25,19 +25,32 @@ import com.an.notesapp.ui.viewmodel.NoteDetailViewModel
 
 @Composable
 fun NoteDetailScreen(
-    viewModel: NoteDetailViewModel,
-    onCloseIconClicked: (noteId: Long) -> Unit
+    viewModel: NoteDetailViewModel
 ) {
-    ProvideAppBarTitle { Text(stringResource(id = R.string.add_note_title)) }
-    ProvideAppBarAction {
-        TextButton(onClick = { /*TODO*/ }) {
-            Text(text = stringResource(id = R.string.done_button))
-        }
-    }
-
     val note = viewModel.note.collectAsStateWithLifecycle(
         lifecycleOwner = LocalLifecycleOwner.current
     )
+
+    val appBarTitle = if (note.value?.title == null) {
+        stringResource(id = R.string.add_new_note)
+    } else stringResource(id = R.string.note_detail_title)
+
+    ProvideAppBarTitle {
+        Text(
+            text = appBarTitle,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    }
+    ProvideAppBarAction {
+        TextButton( onClick = viewModel::addOrUpdateNote ) {
+            Text(
+                text = stringResource(id = R.string.done_button),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.outline
+            )
+        }
+    }
 
     Box(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
