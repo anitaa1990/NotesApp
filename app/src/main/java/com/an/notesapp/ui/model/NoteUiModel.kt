@@ -7,6 +7,7 @@ data class NoteUiModel(
     val noteId: Long,
     val title: String,
     val description: String,
+    val noteLocked: Boolean,
     val createdAt: OffsetDateTime
 )
 
@@ -15,7 +16,7 @@ fun NoteUiModel.toNote(): Note {
         id = this.noteId,
         title = this.title,
         description = this.description,
-        encrypt = false,
+        encrypt = this.noteLocked,
         password = null,
         createdAt = this.createdAt,
         modifiedAt = OffsetDateTime.now()
@@ -27,6 +28,7 @@ fun Note.toUiModel(): NoteUiModel {
         noteId = this.id,
         title = this.title,
         description = this.description,
+        noteLocked = this.encrypt,
         createdAt = this.createdAt
     )
 }

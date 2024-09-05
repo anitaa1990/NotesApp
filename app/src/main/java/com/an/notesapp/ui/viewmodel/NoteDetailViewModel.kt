@@ -101,6 +101,7 @@ class NoteDetailViewModel @Inject constructor(
             noteId = 0L,
             title = "",
             description = "",
+            noteLocked = false,
             createdAt = OffsetDateTime.now()
         ),
         val toolbarTitle: Int = 0

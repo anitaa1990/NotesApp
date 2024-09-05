@@ -1,5 +1,6 @@
 package com.an.notesapp.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
@@ -8,19 +9,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +37,7 @@ import com.an.notesapp.ui.theme.noteTextStyle
 import com.an.notesapp.ui.theme.noteTitleStyle
 import com.an.notesapp.ui.viewmodel.NoteDetailViewModel
 
+@SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun NoteDetailScreen(
     viewModel: NoteDetailViewModel
@@ -39,7 +46,6 @@ fun NoteDetailScreen(
         lifecycleOwner = LocalLifecycleOwner.current
     )
 
-    // Toolbar title
     ProvideAppBarTitle {
         // Note title
         TextField(
@@ -60,8 +66,21 @@ fun NoteDetailScreen(
         )
     }
 
-    // Toolbar action button: Done
+    // Toolbar action buttons
     ProvideAppBarAction {
+        // Lock note button
+        LockNoteToggleButton(noteUiState.value.note.noteLocked)
+
+        // Set reminder button
+        IconButton( onClick = viewModel::addOrUpdateNote ) {
+            Icon(
+                imageVector = Icons.Filled.Notifications,
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        // Update/add button
         IconButton( onClick = viewModel::addOrUpdateNote ) {
             Icon(
                 imageVector = Icons.Filled.Check,
@@ -105,5 +124,21 @@ fun NoteDetailScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun LockNoteToggleButton(locked: Boolean) {
+    val checkedState = remember { mutableStateOf(locked) }
+    val resourceId = if (checkedState.value) R.drawable.ic_lock else R.drawable.ic_lock_open
+    IconToggleButton(
+        checked = checkedState.value,
+        onCheckedChange = { checkedState.value = !checkedState.value }
+    ) {
+        Icon(
+            painter = painterResource(resourceId),
+            contentDescription = "",
+            tint = MaterialTheme.colorScheme.primary
+        )
     }
 }
