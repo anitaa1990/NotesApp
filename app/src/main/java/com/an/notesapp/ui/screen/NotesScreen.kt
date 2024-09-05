@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
@@ -30,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +39,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.notesapp.R
 import com.an.notesapp.db.Note
 import com.an.notesapp.ui.component.ProvideAppBarTitle
+import com.an.notesapp.ui.theme.noteTextStyle
+import com.an.notesapp.ui.theme.noteTitleStyle
 import com.an.notesapp.ui.viewmodel.NoteViewModel
 import com.an.notesapp.util.getDate
 import com.an.notesapp.util.getTime
@@ -107,28 +108,24 @@ fun NoteItem(
         ) {
             Column (modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 15.dp, top = 6.dp, bottom = 6.dp)) {
+                .padding(start = 10.dp, bottom = 12.dp)
+            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .wrapContentHeight()
                 ) {
                     Text(
+                        modifier = Modifier.weight(1f),
                         text = note.title,
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .weight(
-                                weight = 1.0f,
-                                fill = false,
-                            ),
+                        style = noteTitleStyle,
                         overflow = TextOverflow.Ellipsis,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
+                        maxLines = 1,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                     )
                     IconButton(
+                        modifier = Modifier.weight(0.25f),
                         onClick = { onNoteItemDeleted(note) }
                     ) {
                         Icon(
@@ -140,9 +137,9 @@ fun NoteItem(
                     }
                 }
                 Text(
+                    style = noteTextStyle,
+                    modifier = Modifier.padding(end = 10.dp),
                     text = note.description,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(top = 4.dp, end = 8.dp),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis
@@ -152,8 +149,8 @@ fun NoteItem(
                         stringResource(id = R.string.note_list_date),
                         note.createdAt.getDate(), note.createdAt.getTime()
                     ),
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 4.dp, end = 8.dp),
+                    modifier = Modifier.padding(top = 10.dp),
+                    fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.outline
                 )
             }
@@ -197,7 +194,7 @@ fun NoteItemPreview() {
         note = Note(
             id = 1L,
             title = "Test 2",
-            description = "Testing new note",
+            description = "Testing new note sdskd lskslk sflk sl sfs;lfj sfssdk aewiewidm sdkj s kjdskdj kjsd k sdhs idijsd i sdjsl ef elfj ",
             encrypt = true,
             password = null,
             createdAt = OffsetDateTime.now(),
