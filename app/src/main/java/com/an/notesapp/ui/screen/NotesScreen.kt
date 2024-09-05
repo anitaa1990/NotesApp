@@ -26,6 +26,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,7 +43,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.notesapp.R
 import com.an.notesapp.db.Note
+import com.an.notesapp.ui.component.PasswordBottomSheet
 import com.an.notesapp.ui.component.ProvideAppBarTitle
+import com.an.notesapp.ui.model.NoteAction
 import com.an.notesapp.ui.theme.noteTextStyle
 import com.an.notesapp.ui.theme.noteTitleStyle
 import com.an.notesapp.ui.viewmodel.NoteViewModel
@@ -81,11 +86,43 @@ fun NotesScreen(
                 val note = notes.value[it]
                 NoteItem(
                     note = note,
-                    onNoteItemClicked = onNoteItemClicked,
+                    onNoteItemClicked = { viewModel.onNoteItemClicked(note) },
                     onNoteItemDeleted = { viewModel.deleteNote(note) }
                 )
             }
         }
+    }
+
+    val noteActionState = viewModel.noteActionState.collectAsState().value
+
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val errorResId = remember { mutableStateOf<Int?>(null) }
+
+    when(noteActionState) {
+        is NoteAction.NoteLocked -> { showBottomSheet.value = true }
+        is NoteAction.NoteNotLocked -> {
+            viewModel.reset()
+            onNoteItemClicked(noteActionState.noteId)
+        }
+        is NoteAction.PasswordValidationSuccess -> {
+            showBottomSheet.value = false
+            viewModel.reset()
+            onNoteItemClicked(noteActionState.noteId)
+        }
+        is NoteAction.PasswordValidationError -> { errorResId.value = noteActionState.errorResId }
+        is NoteAction.Idle -> {
+            showBottomSheet.value = false
+            errorResId.value = null
+        }
+    }
+
+    if(showBottomSheet.value) {
+        PasswordBottomSheet(
+            isNoteLocked = true,
+            errorMessageId = errorResId.value,
+            onDismissRequest = { viewModel.reset() },
+            onDoneRequest = { viewModel.validatePassword(it) }
+        )
     }
 }
 
@@ -112,7 +149,8 @@ fun NoteItem(
             HorizontalDivider (
                 color = MaterialTheme.colorScheme.primary,
                 thickness = 3.dp,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .alpha(alpha),
             )
             Column (modifier = Modifier
@@ -174,7 +212,8 @@ fun NoteItem(
                         imageVector = Icons.Filled.Lock,
                         contentDescription = "",
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(12.dp)
+                        modifier = Modifier
+                            .size(12.dp)
                             .weight(0.25f)
                             .alpha(alpha)
                     )

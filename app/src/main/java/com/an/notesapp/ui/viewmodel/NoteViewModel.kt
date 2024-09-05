@@ -4,12 +4,16 @@ import androidx.lifecycle.viewModelScope
 import com.an.notesapp.R
 import com.an.notesapp.db.Note
 import com.an.notesapp.repository.NoteRepository
+import com.an.notesapp.ui.model.NoteAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,5 +49,36 @@ class NoteViewModel @Inject constructor(
             repository.deleteNote(note)
         }
         triggerEvent(Event.ShowSnackbar(R.string.delete_note_success))
+    }
+
+    private val _noteActionState = MutableStateFlow<NoteAction>(NoteAction.Idle)
+    val noteActionState = _noteActionState.asStateFlow()
+
+    private var selectedNote: Note? = null
+    fun onNoteItemClicked(note: Note) {
+        this.selectedNote = note
+        if (note.encrypt) {
+            // open bottom sheet to allow users to enter password
+            _noteActionState.update { NoteAction.NoteLocked }
+        } else {
+            // redirect to note detail screen since the note is not locked
+            _noteActionState.update { NoteAction.NoteNotLocked(note.id) }
+        }
+    }
+
+    fun validatePassword(password: String) {
+        if (selectedNote?.password == password) {
+            // password is correct so redirect to note detail screen
+            selectedNote?.let { note ->
+                _noteActionState.update { NoteAction.PasswordValidationSuccess(note.id) }
+            }
+        } else {
+            // password is wrong so display validation error
+            _noteActionState.update { NoteAction.PasswordValidationError(R.string.error_password) }
+        }
+    }
+
+    fun reset() {
+        _noteActionState.update { NoteAction.Idle }
     }
 }
