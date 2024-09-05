@@ -131,7 +131,7 @@ fun NoteItem(
                         Icon(
                             imageVector = Icons.Filled.Delete,
                             contentDescription = "",
-                            tint = MaterialTheme.colorScheme.outline,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(16.dp)
                         )
                     }

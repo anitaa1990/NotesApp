@@ -7,8 +7,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -36,7 +37,7 @@ fun MainTopAppBar(
         }
     )
 
-    TopAppBar(
+    LargeTopAppBar(
         navigationIcon = {
             if (showBackButton) {
                 val backPressDispatcher = LocalOnBackPressedDispatcherOwner.current
@@ -46,7 +47,7 @@ fun MainTopAppBar(
                     Icon(
                         imageVector = Icons.Filled.Close,
                         contentDescription = "",
-                        tint = MaterialTheme.colorScheme.outline,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(25.dp)
                     )
                 }
@@ -57,6 +58,13 @@ fun MainTopAppBar(
         },
         actions = {
             AppBarAction(currentContentBackStackEntry)
-        }
+        },
+        colors = TopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primaryContainer,
+            actionIconContentColor = MaterialTheme.colorScheme.primaryContainer,
+            navigationIconContentColor = MaterialTheme.colorScheme.primaryContainer
+        )
     )
 }

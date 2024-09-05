@@ -1,17 +1,19 @@
 package com.an.notesapp.ui.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -39,28 +41,37 @@ fun NoteDetailScreen(
 
     // Toolbar title
     ProvideAppBarTitle {
-        Text(
-            text = stringResource(id = noteUiState.value.toolbarTitle),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSecondaryContainer
+        // Note title
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 20.dp),
+            value = noteUiState.value.note.title,
+            onValueChange = { viewModel.updateNoteTitle(it) },
+            placeholder = { Text(stringResource(id = R.string.add_note_title)) },
+            textStyle = noteTitleStyle,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
         )
     }
 
     // Toolbar action button: Done
     ProvideAppBarAction {
-        TextButton( onClick = viewModel::addOrUpdateNote ) {
-            Text(
-                text = stringResource(id = R.string.done_button),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.outline
+        IconButton( onClick = viewModel::addOrUpdateNote ) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }
 
-    Box(
-        modifier = Modifier
-            .background(color = MaterialTheme.colorScheme.background)
-    ) {
+    Box {
         Card (
             modifier = Modifier.padding(15.dp),
             shape = RectangleShape,
@@ -75,24 +86,6 @@ fun NoteDetailScreen(
                     .fillMaxWidth()
                     .fillMaxHeight(fraction = 0.9f)
             ) {
-                // Note title
-                TextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    value = noteUiState.value.note.title,
-                    onValueChange = { viewModel.updateNoteTitle(it) },
-                    placeholder = { Text(stringResource(id = R.string.add_note_title)) },
-                    textStyle = noteTitleStyle,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    )
-                )
-
                 // Note description
                 TextField(
                     modifier = Modifier
