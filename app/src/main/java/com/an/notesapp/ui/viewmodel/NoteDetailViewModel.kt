@@ -37,17 +37,10 @@ class NoteDetailViewModel @Inject constructor(
         noteId?.let {
             repository.getNote(it.toLong()).collect { note ->
                 _noteUiState.emit(
-                    NoteDetailUiState(
-                        note = note.toUiModel(),
-                        toolbarTitle = R.string.note_detail_title
-                    )
+                    NoteDetailUiState(note = note.toUiModel())
                 )
             }
-        } ?: _noteUiState.emit(
-            NoteDetailUiState(
-                toolbarTitle = R.string.add_new_note
-            )
-        )
+        }
     }
 
     fun updateNoteTitle(title: String) {
@@ -143,7 +136,6 @@ class NoteDetailViewModel @Inject constructor(
             noteLocked = false,
             createdAt = OffsetDateTime.now()
         ),
-        val toolbarTitle: Int = 0,
         val showBottomSheet: Boolean = false,
         val passwordErrorStringId: Int? = null
     )
