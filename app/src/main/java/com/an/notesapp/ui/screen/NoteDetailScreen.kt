@@ -20,8 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -31,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.notesapp.R
+import com.an.notesapp.ui.component.PasswordBottomSheet
 import com.an.notesapp.ui.component.ProvideAppBarAction
 import com.an.notesapp.ui.component.ProvideAppBarTitle
 import com.an.notesapp.ui.theme.noteTextStyle
@@ -69,7 +68,10 @@ fun NoteDetailScreen(
     // Toolbar action buttons
     ProvideAppBarAction {
         // Lock note button
-        LockNoteToggleButton(noteUiState.value.note.noteLocked)
+        LockNoteToggleButton(
+            isNoteLocked = noteUiState.value.note.noteLocked,
+            onCheckedChange = { viewModel.showOrHideBottomSheet(true) }
+        )
 
         // Set reminder button
         IconButton( onClick = viewModel::addOrUpdateNote ) {
@@ -125,15 +127,30 @@ fun NoteDetailScreen(
             }
         }
     }
+
+    if (noteUiState.value.showBottomSheet) {
+        val note = noteUiState.value.note
+        PasswordBottomSheet(
+            isNoteLocked = note.noteLocked,
+            errorMessageId = noteUiState.value.passwordErrorStringId,
+            onDismissRequest = { viewModel.showOrHideBottomSheet(false) },
+            onDoneRequest = { password ->
+                viewModel.toggleLock(!note.noteLocked, password)
+            }
+        )
+    }
 }
 
 @Composable
-fun LockNoteToggleButton(locked: Boolean) {
-    val checkedState = remember { mutableStateOf(locked) }
-    val resourceId = if (checkedState.value) R.drawable.ic_lock else R.drawable.ic_lock_open
+fun LockNoteToggleButton(
+    isNoteLocked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    val resourceId = if (isNoteLocked) R.drawable.ic_lock else R.drawable.ic_lock_open
+
     IconToggleButton(
-        checked = checkedState.value,
-        onCheckedChange = { checkedState.value = !checkedState.value }
+        checked = isNoteLocked,
+        onCheckedChange = onCheckedChange
     ) {
         Icon(
             painter = painterResource(resourceId),

@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 import javax.inject.Inject
@@ -60,6 +61,31 @@ class NoteDetailViewModel @Inject constructor(
             note = _noteUiState.value.note.copy(description = desc)
         )
     }
+    fun showOrHideBottomSheet(show: Boolean) {
+        _noteUiState.update { _noteUiState.value.copy(showBottomSheet = show) }
+    }
+
+    fun toggleLock(
+        lockNote: Boolean,
+        password: String
+    ) {
+        val isNoteLocked = noteUiState.value.note.noteLocked
+        when {
+            isNoteLocked && !lockNote -> {
+                val passwordMatches = noteUiState.value.note.password?.let { it == password }
+                if (passwordMatches == true) {
+                    updateLock(false, password)
+                } else {
+                    _noteUiState.update {
+                        noteUiState.value.copy(passwordErrorStringId = R.string.error_password)
+                    }
+                }
+            }
+            else -> {
+                updateLock(true, password)
+            }
+        }
+    }
 
     fun addOrUpdateNote() {
         if (noteId == null) {
@@ -96,6 +122,19 @@ class NoteDetailViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) { repository.insertNote(note) }
     }
 
+    private fun updateLock(
+        lockNote: Boolean,
+        password: String
+    ) {
+        _noteUiState.update {
+            noteUiState.value.copy(
+                note = _noteUiState.value.note.copy(noteLocked = lockNote, password = password),
+                showBottomSheet = false,
+                passwordErrorStringId = null
+            )
+        }
+    }
+
     data class NoteDetailUiState(
         val note: NoteUiModel = NoteUiModel(
             noteId = 0L,
@@ -104,6 +143,8 @@ class NoteDetailViewModel @Inject constructor(
             noteLocked = false,
             createdAt = OffsetDateTime.now()
         ),
-        val toolbarTitle: Int = 0
+        val toolbarTitle: Int = 0,
+        val showBottomSheet: Boolean = false,
+        val passwordErrorStringId: Int? = null
     )
 }

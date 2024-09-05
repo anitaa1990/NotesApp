@@ -13,4 +13,10 @@
     <string name="add_note_success">Note added</string>
     <string name="update_note_success">Note updated</string>
     <string name="delete_note_success">Note deleted</string>
+    <string name="lock_password_note_title">Enter password in order to lock your note</string>
+    <string name="unlock_password_note_title">Enter password in order to unlock your note</string>
+    <string name="label_password">Enter password</string>
+    <string name="label_password_visible">Hide password</string>
+    <string name="label_password_invisible">Show password</string>
+    <string name="error_password">Password does not match</string>
 </resources>
