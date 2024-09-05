@@ -17,8 +17,10 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,10 +28,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,6 +95,7 @@ fun NoteItem(
     onNoteItemClicked: (noteId: Long) -> Unit,
     onNoteItemDeleted: (note: Note) -> Unit
 ) {
+    val alpha = if (note.encrypt) 1f else 0f
     Box(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
     ) {
@@ -106,6 +109,12 @@ fun NoteItem(
                 containerColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
+            HorizontalDivider (
+                color = MaterialTheme.colorScheme.primary,
+                thickness = 3.dp,
+                modifier = Modifier.fillMaxWidth()
+                    .alpha(alpha),
+            )
             Column (modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 10.dp, bottom = 12.dp)
@@ -144,15 +153,32 @@ fun NoteItem(
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = String.format(
-                        stringResource(id = R.string.note_list_date),
-                        note.createdAt.getDate(), note.createdAt.getTime()
-                    ),
-                    modifier = Modifier.padding(top = 10.dp),
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.outline
-                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(top = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = String.format(
+                            stringResource(id = R.string.note_list_date),
+                            note.createdAt.getDate(), note.createdAt.getTime()
+                        ),
+                        modifier = Modifier.weight(1f),
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.Lock,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(12.dp)
+                            .weight(0.25f)
+                            .alpha(alpha)
+                    )
+                }
             }
         }
     }
