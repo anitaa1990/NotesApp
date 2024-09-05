@@ -78,6 +78,17 @@ class NoteViewModel @Inject constructor(
         }
     }
 
+    /**
+     * https://developer.android.com/topic/architecture/ui-layer/events
+     * According to the above document, the ViewModel should inform the UI about the state of the UI
+     * but should refrain from telling the UI how to handle that state.
+     *
+     * https://developer.android.com/topic/architecture/ui-layer/events#navigation-events-destination-back-stack
+     * Additionally, when a ViewModel sets some state that produces a navigation event from
+     * screen A to screen B and screen A is kept in the navigation back stack, we  need additional
+     * logic to not keep advancing automatically to B. This is why this method is needed: to clear
+     * the state when navigating to detail screen.
+     */
     fun reset() {
         _noteActionState.update { NoteAction.Idle }
     }
