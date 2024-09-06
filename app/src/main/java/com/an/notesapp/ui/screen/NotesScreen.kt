@@ -63,8 +63,7 @@ fun NotesScreen(
     ProvideAppBarTitle {
         Text(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 25.dp),
+                .fillMaxWidth(),
             text = stringResource(id = R.string.app_name),
             style = MaterialTheme.typography.displaySmall,
             color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -79,7 +78,7 @@ fun NotesScreen(
         EmptyScreen()
     } else {
         LazyVerticalStaggeredGrid(
-            modifier = Modifier.padding(top = 30.dp, bottom = 10.dp, start = 12.dp, end = 12.dp),
+            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 12.dp, end = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
         ) {
@@ -247,8 +246,8 @@ fun EmptyScreen(modifier: Modifier = Modifier) {
                 text = stringResource(id = R.string.note_list_empty),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(10.dp),
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.primary
+                style = noteTitleStyle,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }
