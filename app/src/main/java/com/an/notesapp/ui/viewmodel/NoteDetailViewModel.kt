@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.an.notesapp.R
 import com.an.notesapp.db.Note
 import com.an.notesapp.repository.NoteRepository
+import com.an.notesapp.ui.model.NoteAction
 import com.an.notesapp.ui.model.NoteUiModel
 import com.an.notesapp.ui.model.toNote
 import com.an.notesapp.ui.model.toUiModel
@@ -26,66 +27,60 @@ class NoteDetailViewModel @Inject constructor(
     private val noteId: String? = savedStateHandle["noteId"]
 
     // This is a mutable state flow that will be used internally in the viewmodel,
-    private val _noteUiState = MutableStateFlow(NoteDetailUiState())
+    private val _noteUiModelState = MutableStateFlow(createNewNoteUiModel())
 
     // Immutable state flow that is exposed to the UI
-    val noteUiState = _noteUiState.asStateFlow()
+    val noteUiModelState = _noteUiModelState.asStateFlow()
+
+    private val _noteActionState = MutableStateFlow<NoteAction>(NoteAction.Idle)
+    val noteActionState = _noteActionState.asStateFlow()
 
     init { getNote() }
 
     private fun getNote() = viewModelScope.launch {
         noteId?.let {
             repository.getNote(it.toLong()).collect { note ->
-                _noteUiState.emit(
-                    NoteDetailUiState(note = note.toUiModel())
-                )
+                _noteUiModelState.emit(note.toUiModel())
             }
         }
     }
 
     fun updateNoteTitle(title: String) {
-        _noteUiState.value = _noteUiState.value.copy(
-            note = _noteUiState.value.note.copy(title = title)
-        )
+        _noteUiModelState.value = _noteUiModelState.value.copy(title = title)
     }
 
     fun updateNoteDesc(desc: String) {
-        _noteUiState.value = _noteUiState.value.copy(
-            note = _noteUiState.value.note.copy(description = desc)
-        )
-    }
-    fun showOrHideBottomSheet(show: Boolean) {
-        _noteUiState.update { _noteUiState.value.copy(showBottomSheet = show) }
+        _noteUiModelState.value = _noteUiModelState.value.copy(description = desc)
     }
 
-    fun toggleLock(
-        lockNote: Boolean,
-        password: String
-    ) {
-        val isNoteLocked = noteUiState.value.note.noteLocked
+    fun validatePassword(newNoteLockedValue: Boolean, newPassword: String) {
+        val oldNoteLockedValue = noteUiModelState.value.noteLocked
         when {
-            isNoteLocked && !lockNote -> {
-                val passwordMatches = noteUiState.value.note.password?.let { it == password }
-                if (passwordMatches == true) {
-                    updateLock(false, password)
+            // note is locked and user is trying to unlock the note
+            oldNoteLockedValue && !newNoteLockedValue -> {
+                if(noteUiModelState.value.password == newPassword) {
+                    // password is correct so note can be unlocked
+                    updateLock(false, newPassword)
+                    _noteActionState.update { NoteAction.NoteNotLocked(noteUiModelState.value.noteId) }
                 } else {
-                    _noteUiState.update {
-                        noteUiState.value.copy(passwordErrorStringId = R.string.error_password)
-                    }
+                    // password is wrong so display validation error
+                    _noteActionState.update { NoteAction.PasswordValidationError(R.string.error_password) }
                 }
             }
-            else -> {
-                updateLock(true, password)
+            // note was unlocked and user is trying to lock the note
+            !oldNoteLockedValue && newNoteLockedValue -> {
+                updateLock(true, newPassword)
+                _noteActionState.update { NoteAction.NoteLocked }
             }
         }
     }
 
     fun addOrUpdateNote() {
         if (noteId == null) {
-            addNote(_noteUiState.value.note.toNote())
+            addNote(_noteUiModelState.value.toNote())
             triggerEvent(Event.ShowSnackbar(R.string.add_note_success))
         } else {
-            updateNote(_noteUiState.value.note.toNote())
+            updateNote(_noteUiModelState.value.toNote())
             triggerEvent(Event.ShowSnackbar(R.string.update_note_success))
         }
         triggerEventWithDelay(Event.ExitScreen)
@@ -119,24 +114,16 @@ class NoteDetailViewModel @Inject constructor(
         lockNote: Boolean,
         password: String
     ) {
-        _noteUiState.update {
-            noteUiState.value.copy(
-                note = _noteUiState.value.note.copy(noteLocked = lockNote, password = password),
-                showBottomSheet = false,
-                passwordErrorStringId = null
-            )
+        _noteUiModelState.update {
+            _noteUiModelState.value.copy(noteLocked = lockNote, password = password)
         }
     }
 
-    data class NoteDetailUiState(
-        val note: NoteUiModel = NoteUiModel(
-            noteId = 0L,
-            title = "",
-            description = "",
-            noteLocked = false,
-            createdAt = OffsetDateTime.now()
-        ),
-        val showBottomSheet: Boolean = false,
-        val passwordErrorStringId: Int? = null
+    private fun createNewNoteUiModel() = NoteUiModel(
+        noteId = 0L,
+        title = "",
+        description = "",
+        noteLocked = false,
+        createdAt = OffsetDateTime.now()
     )
 }

@@ -20,6 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -32,6 +35,7 @@ import com.an.notesapp.R
 import com.an.notesapp.ui.component.PasswordBottomSheet
 import com.an.notesapp.ui.component.ProvideAppBarAction
 import com.an.notesapp.ui.component.ProvideAppBarTitle
+import com.an.notesapp.ui.model.NoteAction
 import com.an.notesapp.ui.theme.noteTextStyle
 import com.an.notesapp.ui.theme.noteTitleStyle
 import com.an.notesapp.ui.viewmodel.NoteDetailViewModel
@@ -41,7 +45,7 @@ import com.an.notesapp.ui.viewmodel.NoteDetailViewModel
 fun NoteDetailScreen(
     viewModel: NoteDetailViewModel
 ) {
-    val noteUiState = viewModel.noteUiState.collectAsStateWithLifecycle(
+    val noteUiState = viewModel.noteUiModelState.collectAsStateWithLifecycle(
         lifecycleOwner = LocalLifecycleOwner.current
     )
 
@@ -51,7 +55,7 @@ fun NoteDetailScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 20.dp),
-            value = noteUiState.value.note.title,
+            value = noteUiState.value.title,
             onValueChange = { viewModel.updateNoteTitle(it) },
             placeholder = { Text(stringResource(id = R.string.add_note_title)) },
             textStyle = noteTitleStyle,
@@ -65,12 +69,15 @@ fun NoteDetailScreen(
         )
     }
 
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val errorResId = remember { mutableStateOf<Int?>(null) }
+
     // Toolbar action buttons
     ProvideAppBarAction {
         // Lock note button
         LockNoteToggleButton(
-            isNoteLocked = noteUiState.value.note.noteLocked,
-            onCheckedChange = { viewModel.showOrHideBottomSheet(true) }
+            isNoteLocked = noteUiState.value.noteLocked,
+            onCheckedChange = { showBottomSheet.value = true }
         )
 
         // Set reminder button
@@ -112,7 +119,7 @@ fun NoteDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .defaultMinSize(minHeight = 180.dp),
-                    value = noteUiState.value.note.description,
+                    value = noteUiState.value.description,
                     onValueChange = { viewModel.updateNoteDesc(it) },
                     placeholder = { Text(stringResource(id = R.string.add_note_desc)) },
                     textStyle = noteTextStyle,
@@ -128,15 +135,18 @@ fun NoteDetailScreen(
         }
     }
 
-    if (noteUiState.value.showBottomSheet) {
-        val note = noteUiState.value.note
+    when(val noteActionState = viewModel.noteActionState.collectAsState().value) {
+        is NoteAction.NoteLocked, is NoteAction.NoteNotLocked -> { showBottomSheet.value = false }
+        is NoteAction.PasswordValidationError -> { errorResId.value = noteActionState.errorResId }
+        is NoteAction.PasswordValidationSuccess, is NoteAction.Idle -> { }
+    }
+
+    if (showBottomSheet.value) {
         PasswordBottomSheet(
-            isNoteLocked = note.noteLocked,
-            errorMessageId = noteUiState.value.passwordErrorStringId,
-            onDismissRequest = { viewModel.showOrHideBottomSheet(false) },
-            onDoneRequest = { password ->
-                viewModel.toggleLock(!note.noteLocked, password)
-            }
+            isNoteLocked = noteUiState.value.noteLocked,
+            errorMessageId = errorResId.value,
+            onDismissRequest = { showBottomSheet.value = false },
+            onDoneRequest = { viewModel.validatePassword(!noteUiState.value.noteLocked, it) }
         )
     }
 }
