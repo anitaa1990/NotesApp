@@ -9,22 +9,23 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 abstract class BaseViewModel: ViewModel() {
-    private val eventChannel = Channel<Event>(Channel.BUFFERED)
+    private val eventChannel = Channel<AppEvent>(Channel.BUFFERED)
     val eventsFlow = eventChannel.receiveAsFlow()
 
-    protected fun triggerEvent(event: Event) {
+    protected fun triggerEvent(event: AppEvent) {
         viewModelScope.launch { eventChannel.send(event) }
     }
 
-    protected fun triggerEventWithDelay(event: Event, delay: Long = 100) {
+    protected fun triggerEventWithDelay(event: AppEvent, delay: Long = 100) {
         viewModelScope.launch {
             delay(delay)
             triggerEvent(event)
         }
     }
 
-    sealed class Event {
-        data class ShowSnackbar(@StringRes val message: Int) : Event()
-        data object ExitScreen: Event()
+    sealed class AppEvent {
+        data class ShowSnackbar(@StringRes val message: Int) : AppEvent()
+        data object ExitScreen: AppEvent()
+        data object ShowDiscardDialog: AppEvent()
     }
 }
