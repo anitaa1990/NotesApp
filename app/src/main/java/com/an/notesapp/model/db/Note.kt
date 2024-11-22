@@ -16,10 +16,10 @@ data class Note(
     val id: Long = 0,
     val title: String,
     val description: String,
-    val encrypt: Boolean,
-    val password: String?,
+    val encrypt: Boolean = false,
+    val password: String? = null,
     @ColumnInfo(name = "created_at")
-    val createdAt: OffsetDateTime,
+    val createdAt: OffsetDateTime = OffsetDateTime.now(),
     @ColumnInfo(name = "modified_at")
     val modifiedAt: OffsetDateTime
 )
