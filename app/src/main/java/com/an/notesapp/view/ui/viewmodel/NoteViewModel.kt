@@ -20,10 +20,6 @@ class NoteViewModel @Inject constructor(
     private val _notesViewState = MutableStateFlow(NotesViewState())
     val notesViewState: StateFlow<NotesViewState> = _notesViewState
 
-    init {
-        handleIntent(NoteIntent.LoadNotes)
-    }
-
     fun handleIntent(intent: NoteIntent) {
         when(intent) {
             is NoteIntent.LoadNotes -> loadNotes()

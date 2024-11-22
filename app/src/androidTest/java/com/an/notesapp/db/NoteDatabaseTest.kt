@@ -6,16 +6,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.an.notesapp.model.db.Note
 import com.an.notesapp.model.db.NoteDatabase
 import junit.framework.TestCase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.OffsetDateTime
-import java.util.concurrent.CountDownLatch
 
 @RunWith(AndroidJUnit4::class)
 class NoteDatabaseTest: TestCase() {
@@ -64,15 +60,9 @@ class NoteDatabaseTest: TestCase() {
         )
         dao.insertNote(note)
 
-        val latch = CountDownLatch(1)
-        val job = async(Dispatchers.IO) {
-            dao.fetchAllNotes().collect {
-                assertEquals(it.first(), note)
-                latch.countDown()
-            }
-        }
-        latch.await()
-        job.cancelAndJoin()
+        val storedNotes = dao.fetchAllNotes()
+        assertTrue(storedNotes.size == 1)
+        assertEquals(storedNotes[0], note)
     }
 
     @Test
@@ -99,18 +89,10 @@ class NoteDatabaseTest: TestCase() {
         // update
         dao.updateNote(updatedNote)
 
-        val latch = CountDownLatch(1)
-        val job = async(Dispatchers.IO) {
-            // get note and assert if it equals to updated word
-            dao.getNote(updatedNote.id).collect {
-                assertEquals(it, updatedNote)
-                assertNotSame(it, note)
-
-                latch.countDown()
-            }
-        }
-        latch.await()
-        job.cancelAndJoin()
+        // get note and assert if it equals to updated word
+        val storedNote = dao.getNote(updatedNote.id)
+        assertEquals(storedNote, updatedNote)
+        assertNotSame(storedNote, note)
     }
 
     @Test
@@ -139,17 +121,9 @@ class NoteDatabaseTest: TestCase() {
 
         dao.deleteNote(note1)
 
-        val latch = CountDownLatch(1)
-        val job = async(Dispatchers.IO) {
-            dao.fetchAllNotes().collect {
-                assertEquals(it.size, 1)
-                assertEquals(it.first(), note2)
-                assertNotSame(it.first(), note1)
-                latch.countDown()
-            }
-        }
-        latch.await()
-        job.cancelAndJoin()
-
+        val storedNotes = dao.fetchAllNotes()
+        assertEquals(storedNotes.size, 1)
+        assertEquals(storedNotes.first(), note2)
+        assertNotSame(storedNotes.first(), note1)
     }
 }

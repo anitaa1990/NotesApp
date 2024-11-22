@@ -2,13 +2,14 @@ package com.an.notesapp.ui.viewmodel
 
 import app.cash.turbine.test
 import com.an.notesapp.BaseUnitTest
+import com.an.notesapp.intent.NoteIntent
 import com.an.notesapp.model.db.Note
 import com.an.notesapp.model.repository.NoteRepository
 import com.an.notesapp.util.hashedString
 import com.an.notesapp.view.ui.viewmodel.NoteViewModel
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.Mockito.mock
@@ -38,43 +39,69 @@ class NoteViewModelTest: BaseUnitTest() {
     )
 
     @Test
-    fun `when db has notes available returns list of notes`() = runTest {
-        val viewModel = ViewModelBuilder()
-            .withLoadedData()
-            .build()
+    fun `when viewmodel is first initialized then returns initial state`() = runTest {
+        val viewModel = NoteViewModel(repository)
 
-//        viewModel.notes.test {
-//            val notes = awaitItem()
-//            assertEquals(expectedNotes.size, notes.size)
-//            assertEquals(expectedNotes[0], notes.first())
-//            assertEquals(expectedNotes[1], notes.last())
-//        }
+        viewModel.notesViewState.test {
+            val initialState = awaitItem()
+            assertFalse(initialState.isLoading)
+            assertEquals(0, initialState.notes.size)
+            assertEquals("", initialState.errorMessage)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `when db has notes available returns list of notes`() = runTest {
+        `when`(repository.getNotes()).thenReturn(expectedNotes)
+        val viewModel = NoteViewModel(repository)
+
+        viewModel.notesViewState.test {
+            // initial state
+            awaitItem()
+
+            viewModel.handleIntent(NoteIntent.LoadNotes)
+            // loading state
+            val loadingState = awaitItem()
+            assertTrue(loadingState.isLoading)
+            assertEquals(0, loadingState.notes.size)
+            assertEquals("", loadingState.errorMessage)
+
+            // notes are loaded successfully
+            val finalState = awaitItem()
+            assertEquals(expectedNotes.size, finalState.notes.size)
+            assertEquals(expectedNotes[0], finalState.notes.first())
+            assertEquals(expectedNotes[1], finalState.notes.last())
+            assertFalse(finalState.isLoading)
+
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test
     fun `when db has no notes then returns empty list`() = runTest {
-        val viewModel = ViewModelBuilder()
-            .withEmptyData()
-            .build()
+        `when`(repository.getNotes()).thenReturn(emptyList())
 
-//        val notes = viewModel.notes.value
-//        assertTrue(notes.isEmpty())
-    }
+        val viewModel = NoteViewModel(repository)
 
-    private inner class ViewModelBuilder {
-        fun build() = NoteViewModel(repository)
+        viewModel.notesViewState.test {
+            // initial state
+            awaitItem()
 
-        fun withEmptyData(): ViewModelBuilder {
-            `when`(repository.getNotes()).thenReturn(
-                flow { emit(emptyList()) }
-            )
-            return this
-        }
-        fun withLoadedData(): ViewModelBuilder {
-            `when`(repository.getNotes()).thenReturn(
-                flow { emit(expectedNotes) }
-            )
-            return this
+            viewModel.handleIntent(NoteIntent.LoadNotes)
+            // loading state
+            val loadingState = awaitItem()
+            assertTrue(loadingState.isLoading)
+            assertEquals(0, loadingState.notes.size)
+            assertEquals("", loadingState.errorMessage)
+
+            // notes are loaded successfully but is empty
+            val finalState = awaitItem()
+            assertTrue(finalState.notes.isEmpty())
+            assertFalse(finalState.isLoading)
+
+            cancelAndIgnoreRemainingEvents()
         }
     }
 }
