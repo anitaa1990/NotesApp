@@ -1,4 +1,4 @@
-package com.an.notesapp.ui.viewmodel
+package com.an.notesapp.view.ui.viewmodel
 
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel

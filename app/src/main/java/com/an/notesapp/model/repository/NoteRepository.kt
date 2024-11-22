@@ -1,7 +1,7 @@
-package com.an.notesapp.repository
+package com.an.notesapp.model.repository
 
-import com.an.notesapp.db.Note
-import com.an.notesapp.db.NoteDao
+import com.an.notesapp.model.db.Note
+import com.an.notesapp.model.db.NoteDao
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

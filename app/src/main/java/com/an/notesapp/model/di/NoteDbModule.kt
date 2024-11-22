@@ -1,9 +1,9 @@
-package com.an.notesapp.module
+package com.an.notesapp.model.di
 
 import android.content.Context
 import androidx.room.Room
-import com.an.notesapp.db.NoteDao
-import com.an.notesapp.db.NoteDatabase
+import com.an.notesapp.model.db.NoteDao
+import com.an.notesapp.model.db.NoteDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

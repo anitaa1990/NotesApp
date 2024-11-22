@@ -3,6 +3,8 @@ package com.an.notesapp.db
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.an.notesapp.model.db.Note
+import com.an.notesapp.model.db.NoteDatabase
 import junit.framework.TestCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -19,7 +21,7 @@ import java.util.concurrent.CountDownLatch
 class NoteDatabaseTest: TestCase() {
     // get reference to the NoteDatabase and NoteDao class
     private lateinit var db: NoteDatabase
-    private lateinit var dao: NoteDao
+    private lateinit var dao: com.an.notesapp.model.db.NoteDao
 
     // Override function setUp() and annotate it with @Before.
     // The @Before annotation makes sure fun setupDatabase() is executed before each class.

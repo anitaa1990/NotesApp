@@ -1,4 +1,4 @@
-package com.an.notesapp.db
+package com.an.notesapp.model.db
 
 import androidx.room.TypeConverter
 import java.time.OffsetDateTime
