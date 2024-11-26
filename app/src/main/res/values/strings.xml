@@ -3,7 +3,7 @@
     <string name="back_button">Back</string>
     <string name="done_button">Done</string>
     <string name="note_list_date" formatted="false">%s, %s</string>
-    <string name="note_list_empty">Once you add some notes you will find it here</string>
+    <string name="note_list_empty">You do not have any notes saved.\nClick + to add a new note.</string>
     <string name="add_note_title">Enter your title here</string>
     <string name="note_detail_title">My note</string>
     <string name="add_new_note">Add new note</string>
@@ -19,4 +19,5 @@
     <string name="label_password_visible">Hide password</string>
     <string name="label_password_invisible">Show password</string>
     <string name="error_password">Password does not match</string>
+    <string name="loading">Loading…</string>
 </resources>
