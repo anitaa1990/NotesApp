@@ -28,6 +28,7 @@ import com.an.notesapp.view.ui.component.MainTopAppBar
 import com.an.notesapp.view.ui.screen.NoteDetailScreen
 import com.an.notesapp.view.ui.screen.NotesScreen
 import com.an.notesapp.view.ui.theme.NotesAppTheme
+import com.an.notesapp.view.ui.viewmodel.NoteDetailViewModel
 import com.an.notesapp.view.ui.viewmodel.NoteViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -77,7 +78,8 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(
                                 navArgument(ROUTE_DETAIL_ARG_NAME) { nullable = true },
                             )) {
-                            NoteDetailScreen()
+                            val noteDetailViewModel = hiltViewModel<NoteDetailViewModel>()
+                            NoteDetailScreen(noteDetailViewModel)
                         }
                     }
                 }
