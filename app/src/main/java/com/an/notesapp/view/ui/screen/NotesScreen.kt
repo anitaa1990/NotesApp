@@ -34,16 +34,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.an.notesapp.R
 import com.an.notesapp.model.db.Note
 import com.an.notesapp.util.getDate
 import com.an.notesapp.util.getTime
 import com.an.notesapp.view.ui.component.EmptyScreen
 import com.an.notesapp.view.ui.component.LoadingItem
+import com.an.notesapp.view.ui.component.ProvideAppBarTitle
 import com.an.notesapp.view.ui.theme.noteTextStyle
 import com.an.notesapp.view.ui.theme.noteTitleStyle
 import com.an.notesapp.view.ui.viewmodel.NoteViewModel
-import com.an.notesapp.R
-import java.time.OffsetDateTime
 
 @Composable
 fun NotesScreen(
@@ -53,6 +53,17 @@ fun NotesScreen(
     val noteUiState = viewModel.notesViewState.collectAsStateWithLifecycle(
         lifecycleOwner = LocalLifecycleOwner.current
     )
+
+    // Toolbar title
+    ProvideAppBarTitle {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth(),
+            text = stringResource(id = R.string.app_name),
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    }
 
     if(noteUiState.value.isLoading) {
         // Show loading

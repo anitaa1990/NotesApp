@@ -1,9 +1,7 @@
 package com.an.notesapp.view.ui.component
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -12,49 +10,41 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.FloatingWindow
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
+import kotlinx.coroutines.flow.filterNot
+import androidx.compose.runtime.getValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTopAppBar(
-    appBarType: AppBarType,
     showBackButton: Boolean,
-    @StringRes titleId: Int,
+    navController: NavHostController,
     scrollBehavior: TopAppBarScrollBehavior,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
-    when (appBarType) {
-        AppBarType.LARGE -> LargeTopAppBar(
-            title = title(titleId),
-            colors = topAppBarColors(),
-            scrollBehavior = scrollBehavior,
-            navigationIcon = navigationIcon(showBackButton),
-            actions = actions
-        )
-        AppBarType.SMALL -> TopAppBar(
-            title = title(titleId),
-            colors = topAppBarColors(),
-            scrollBehavior = scrollBehavior,
-            navigationIcon = navigationIcon(showBackButton),
-            actions = actions
-        )
-    }
-}
+    val currentContentBackStackEntry by produceState(
+        initialValue = null as NavBackStackEntry?,
+        producer = {
+            navController.currentBackStackEntryFlow
+                .filterNot { it.destination is FloatingWindow }
+                .collect{ value = it }
+        }
+    )
 
-@Composable
-private fun title(@StringRes titleId: Int) = @Composable {
-    Text(
-        text = stringResource(id = titleId),
-        style = MaterialTheme.typography.displaySmall,
-        color = MaterialTheme.colorScheme.onSecondaryContainer,
-        modifier = Modifier.fillMaxWidth()
+    LargeTopAppBar(
+        title = { AppBarTitle(currentContentBackStackEntry) },
+        colors = topAppBarColors(),
+        scrollBehavior = scrollBehavior,
+        navigationIcon = navigationIcon(showBackButton),
+        actions = actions
     )
 }
 
@@ -84,7 +74,3 @@ private fun topAppBarColors() = TopAppBarColors(
     actionIconContentColor = MaterialTheme.colorScheme.primaryContainer,
     navigationIconContentColor = MaterialTheme.colorScheme.primaryContainer
 )
-
-enum class AppBarType {
-    LARGE, SMALL
-}
