@@ -28,6 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -36,13 +39,13 @@ import androidx.navigation.navArgument
 import com.an.notesapp.Constants.ROUTE_DETAIL_ARG_NAME
 import com.an.notesapp.Constants.ROUTE_DETAIL_PATH
 import com.an.notesapp.Constants.ROUTE_HOME
-import com.an.notesapp.intent.NoteIntent
 import com.an.notesapp.util.stringResource
 import com.an.notesapp.view.ui.component.MainTopAppBar
 import com.an.notesapp.view.ui.screen.NoteDetailScreen
 import com.an.notesapp.view.ui.screen.NotesScreen
 import com.an.notesapp.view.ui.theme.NotesAppTheme
-import com.an.notesapp.view.ui.viewmodel.BaseViewModel
+import com.an.notesapp.view.ui.viewmodel.EventManager
+import com.an.notesapp.view.ui.viewmodel.EventManager.AppEvent
 import com.an.notesapp.view.ui.viewmodel.NoteDetailViewModel
 import com.an.notesapp.view.ui.viewmodel.NoteViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,26 +73,27 @@ class MainActivity : ComponentActivity() {
                 val snackbarHostState = remember { SnackbarHostState() }
                 val coroutineScope = rememberCoroutineScope()
 
-                    val viewModel = hiltViewModel<NoteViewModel>()
-
-                    // Collect effects such as showing snackbar messages
-                    LaunchedEffect(viewModel.eventsFlow) {
-                        viewModel.eventsFlow.collect { event ->
-                            when (event) {
-                                is BaseViewModel.AppEvent.ShowSnackbar -> {
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            context.stringResource(event.message),
-                                            duration = SnackbarDuration.Short
-                                        )
+                // Observe the centralized event flow
+                LaunchedEffect(EventManager) {
+                    lifecycleScope.launch {
+                        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            EventManager.eventsFlow.collect { event ->
+                                when (event) {
+                                    is AppEvent.ShowSnackbar -> {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                context.stringResource(event.message),
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        }
                                     }
+                                    is AppEvent.ExitScreen -> navController.navigateUp()
+                                    else -> {  }
                                 }
-                                is BaseViewModel.AppEvent.ExitScreen -> navController.navigateUp()
-                                is BaseViewModel.AppEvent.NavigateToDetail -> navController.navigate(ROUTE_DETAIL_PATH)
-                                else -> {  }
                             }
                         }
                     }
+                }
 
 
                     Scaffold(
@@ -107,7 +111,7 @@ class MainActivity : ComponentActivity() {
                                     shape = CircleShape,
                                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                                     contentColor = MaterialTheme.colorScheme.primary,
-                                    onClick = { viewModel.handleIntent(NoteIntent.AddNoteClicked) }
+                                    onClick = { navController.navigate(ROUTE_DETAIL_PATH) }
                                 ) {
                                     Icon(Icons.Default.Add, contentDescription = "Add")
                                 }
@@ -121,7 +125,8 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(innerPadding).fillMaxSize()
                         ) {
                             composable(route = ROUTE_HOME) {
-                                NotesScreen(viewModel = viewModel) { noteId ->
+                                val noteViewModel = hiltViewModel<NoteViewModel>()
+                                NotesScreen(viewModel = noteViewModel) { noteId ->
                                     navController.navigate(
                                         ROUTE_DETAIL_PATH.replace(
                                             "{$ROUTE_DETAIL_ARG_NAME}",

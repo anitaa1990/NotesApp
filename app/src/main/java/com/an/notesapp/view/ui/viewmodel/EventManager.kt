@@ -1,23 +1,23 @@
 package com.an.notesapp.view.ui.viewmodel
 
 import androidx.annotation.StringRes
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel: ViewModel() {
+object EventManager {
     private val eventChannel = Channel<AppEvent>(Channel.BUFFERED)
     val eventsFlow = eventChannel.receiveAsFlow()
 
-    protected fun triggerEvent(event: AppEvent) {
-        viewModelScope.launch { eventChannel.send(event) }
+    fun triggerEvent(event: AppEvent) {
+        CoroutineScope(Dispatchers.Default).launch { eventChannel.send(event) }
     }
 
-    protected fun triggerEventWithDelay(event: AppEvent, delay: Long = 100) {
-        viewModelScope.launch {
+    fun triggerEventWithDelay(event: AppEvent, delay: Long = 100) {
+        CoroutineScope(Dispatchers.Default).launch {
             delay(delay)
             triggerEvent(event)
         }

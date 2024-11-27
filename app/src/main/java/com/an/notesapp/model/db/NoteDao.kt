@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 /**
  * DAO's are data access objects. They includes methods that offer abstract access
@@ -24,7 +25,7 @@ interface NoteDao {
     suspend fun deleteNote(note: Note)
 
     @Query("SELECT * FROM Note")
-    suspend fun fetchAllNotes(): List<Note>
+    fun fetchAllNotes(): Flow<List<Note>>
 
     @Query("SELECT * FROM Note WHERE id =:noteId")
     suspend fun getNote(noteId: Long): Note

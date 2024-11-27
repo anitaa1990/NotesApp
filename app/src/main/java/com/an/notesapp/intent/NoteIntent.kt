@@ -5,8 +5,7 @@ import com.an.notesapp.model.db.Note
 sealed class NoteIntent {
     object LoadNotes : NoteIntent()
     object LoadNote : NoteIntent()
-    data object AddNote : NoteIntent()
-    data object SaveNote : NoteIntent()
+    data object AddOrSaveNote : NoteIntent()
     data class UpdateNoteTitle(val title: String) : NoteIntent()
     data class UpdateNoteDescription(val description: String) : NoteIntent()
     data class LockNote(val password: String): NoteIntent()

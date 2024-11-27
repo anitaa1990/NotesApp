@@ -1,7 +1,6 @@
 package com.an.notesapp.view.ui.component
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -13,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,15 +20,13 @@ import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.flow.filterNot
-import androidx.compose.runtime.getValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTopAppBar(
     showBackButton: Boolean,
     navController: NavHostController,
-    scrollBehavior: TopAppBarScrollBehavior,
-    actions: @Composable RowScope.() -> Unit = {}
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
     val currentContentBackStackEntry by produceState(
         initialValue = null as NavBackStackEntry?,
@@ -44,7 +42,7 @@ fun MainTopAppBar(
         colors = topAppBarColors(),
         scrollBehavior = scrollBehavior,
         navigationIcon = navigationIcon(showBackButton),
-        actions = actions
+        actions = { AppBarAction(currentContentBackStackEntry) }
     )
 }
 
