@@ -44,6 +44,8 @@ class NoteDetailViewModel @Inject constructor(
             is NoteIntent.UpdateNoteDescription -> updateNoteDesc(intent.description)
             is NoteIntent.AddOrSaveNote -> noteId?.let { saveNote() } ?: addNote()
             is NoteIntent.DeleteNote -> deleteNote()
+            is NoteIntent.LockNote -> lockNote(intent.password)
+            is NoteIntent.UnLockNote -> unlockNote()
             else -> {  }
         }
     }
@@ -67,6 +69,20 @@ class NoteDetailViewModel @Inject constructor(
     private fun updateNoteDesc(desc: String) {
         _noteDetailViewState.value = _noteDetailViewState.value.copy(
             note = _noteDetailViewState.value.note.copy(description = desc),
+            showSaveIcon = true
+        )
+    }
+
+    private fun lockNote(password: String) {
+        _noteDetailViewState.value = _noteDetailViewState.value.copy(
+            note = _noteDetailViewState.value.note.copy(encrypt = true, password = password),
+            showSaveIcon = true
+        )
+    }
+
+    private fun unlockNote() {
+        _noteDetailViewState.value = _noteDetailViewState.value.copy(
+            note = _noteDetailViewState.value.note.copy(encrypt = false, password = null),
             showSaveIcon = true
         )
     }

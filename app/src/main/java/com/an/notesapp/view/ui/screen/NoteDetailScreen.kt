@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
@@ -19,6 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -29,11 +34,13 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.notesapp.R
 import com.an.notesapp.intent.NoteIntent
+import com.an.notesapp.view.ui.component.PasswordBottomSheet
 import com.an.notesapp.view.ui.component.ProvideAppBarAction
 import com.an.notesapp.view.ui.component.ProvideAppBarTitle
 import com.an.notesapp.view.ui.theme.noteTextStyle
 import com.an.notesapp.view.ui.viewmodel.NoteDetailViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
     val noteDetailViewState = viewModel.noteDetailViewState.collectAsStateWithLifecycle(
@@ -60,6 +67,19 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
         )
     }
 
+    // Bottom sheet for password
+    var showBottomSheet by remember { mutableStateOf(false) }
+    if (showBottomSheet) {
+        PasswordBottomSheet(
+            isNoteLocked = noteDetailViewState.value.note.encrypt,
+            onDismissRequest = { showBottomSheet = false },
+            onDoneRequest = {
+                viewModel.handleIntent(NoteIntent.LockNote(it))
+                showBottomSheet = false
+            }
+        )
+    }
+
     // Toolbar action buttons
     ProvideAppBarAction {
         // Lock button
@@ -69,7 +89,10 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
 
         IconToggleButton(
             checked = noteDetailViewState.value.note.encrypt,
-            onCheckedChange = {  }
+            onCheckedChange = {
+                if (noteDetailViewState.value.note.encrypt) viewModel.handleIntent(NoteIntent.UnLockNote)
+                else showBottomSheet = true
+            }
         ) {
             Icon(
                 painter = painterResource(resourceId),
@@ -103,6 +126,7 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
         }
     }
 
+    // Note description
     Box {
         Card (
             modifier = Modifier.padding(15.dp),
