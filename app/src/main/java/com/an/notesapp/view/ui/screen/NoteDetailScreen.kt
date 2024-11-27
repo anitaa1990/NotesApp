@@ -140,7 +140,7 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
                 modifier = Modifier
                     .padding(12.dp)
                     .fillMaxWidth()
-                    .fillMaxHeight(fraction = 0.9f)
+                    .fillMaxHeight()
             ) {
                 // Note description
                 TextField(
