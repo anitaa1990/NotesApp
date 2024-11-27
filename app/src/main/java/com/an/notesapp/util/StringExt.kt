@@ -1,5 +1,6 @@
 package com.an.notesapp.util
 
+import android.content.Context
 import java.security.MessageDigest
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -21,3 +22,5 @@ fun OffsetDateTime.getTime(): String {
     val newDateFormat = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
     return this.format(newDateFormat)
 }
+
+fun Context.stringResource(messageId: Int) = this.getString(messageId)

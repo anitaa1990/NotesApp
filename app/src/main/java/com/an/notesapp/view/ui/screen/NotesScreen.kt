@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.notesapp.R
+import com.an.notesapp.intent.NoteIntent
 import com.an.notesapp.model.db.Note
 import com.an.notesapp.util.getDate
 import com.an.notesapp.util.getTime
@@ -86,7 +87,7 @@ fun NotesScreen(
                 NoteItem(
                     note = note,
                     onNoteItemClicked = { onNoteItemClicked(it) },
-                    onNoteItemDeleted = {  }
+                    onNoteItemDeleted = { viewModel.handleIntent(NoteIntent.DeleteNote(it)) }
                 )
             }
         }
