@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.an.notesapp.R
-import java.time.OffsetDateTime
 
 @HiltViewModel
 class NoteViewModel @Inject constructor(
@@ -24,8 +23,8 @@ class NoteViewModel @Inject constructor(
         when(intent) {
             is NoteIntent.LoadNotes -> loadNotes()
             is NoteIntent.DeleteNote -> deleteNote(intent.note)
-            is NoteIntent.AddNote -> addNote(intent.title, intent.description)
-            is NoteIntent.UpdateNote -> updateNote(intent.note)
+            is NoteIntent.AddNoteClicked -> triggerEvent(AppEvent.NavigateToDetail)
+            else -> {  }
         }
     }
 
@@ -41,26 +40,6 @@ class NoteViewModel @Inject constructor(
         viewModelScope.launch(IO) { //this: CoroutineScope
             repository.deleteNote(note)
             triggerEvent(AppEvent.ShowSnackbar(R.string.delete_note_success))
-        }
-    }
-
-    private fun addNote(title: String, description: String) {
-        viewModelScope.launch(IO) {
-            val note = Note(
-                title = title,
-                description = description,
-                modifiedAt = OffsetDateTime.now()
-            )
-            repository.insertNote(note)
-            triggerEvent(AppEvent.ShowSnackbar(R.string.add_note_success))
-        }
-    }
-
-    private fun updateNote(note: Note) {
-        viewModelScope.launch(IO) {
-            val updatedNote = note.copy(modifiedAt = OffsetDateTime.now())
-            repository.updateNote(updatedNote)
-            triggerEvent(AppEvent.ShowSnackbar(R.string.update_note_success))
         }
     }
 

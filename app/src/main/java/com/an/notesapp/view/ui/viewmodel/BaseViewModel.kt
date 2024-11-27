@@ -25,6 +25,7 @@ abstract class BaseViewModel: ViewModel() {
 
     sealed class AppEvent {
         data class ShowSnackbar(@StringRes val message: Int) : AppEvent()
+        data object NavigateToDetail: AppEvent()
         data object ExitScreen: AppEvent()
         data object ShowDiscardDialog: AppEvent()
     }

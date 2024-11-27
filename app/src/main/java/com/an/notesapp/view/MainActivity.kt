@@ -36,6 +36,7 @@ import androidx.navigation.navArgument
 import com.an.notesapp.Constants.ROUTE_DETAIL_ARG_NAME
 import com.an.notesapp.Constants.ROUTE_DETAIL_PATH
 import com.an.notesapp.Constants.ROUTE_HOME
+import com.an.notesapp.intent.NoteIntent
 import com.an.notesapp.util.stringResource
 import com.an.notesapp.view.ui.component.MainTopAppBar
 import com.an.notesapp.view.ui.screen.NoteDetailScreen
@@ -84,6 +85,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                                 is BaseViewModel.AppEvent.ExitScreen -> navController.navigateUp()
+                                is BaseViewModel.AppEvent.NavigateToDetail -> navController.navigate(ROUTE_DETAIL_PATH)
                                 else -> {  }
                             }
                         }
@@ -105,7 +107,7 @@ class MainActivity : ComponentActivity() {
                                     shape = CircleShape,
                                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                                     contentColor = MaterialTheme.colorScheme.primary,
-                                    onClick = { navController.navigate(ROUTE_DETAIL_PATH) }
+                                    onClick = { viewModel.handleIntent(NoteIntent.AddNoteClicked) }
                                 ) {
                                     Icon(Icons.Default.Add, contentDescription = "Add")
                                 }
