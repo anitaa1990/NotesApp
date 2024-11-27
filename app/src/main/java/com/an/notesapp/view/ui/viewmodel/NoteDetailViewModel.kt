@@ -11,7 +11,8 @@ import com.an.notesapp.view.ui.viewmodel.EventManager.AppEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 import javax.inject.Inject
@@ -30,7 +31,7 @@ class NoteDetailViewModel @Inject constructor(
     )
 
     // Immutable state flow that is exposed to the UI
-    val noteDetailViewState = _noteDetailViewState.asStateFlow()
+    val noteDetailViewState: StateFlow<NoteDetailViewState> = _noteDetailViewState
 
     init {
         handleIntent(NoteIntent.LoadNote)
@@ -48,11 +49,9 @@ class NoteDetailViewModel @Inject constructor(
     }
 
     private fun loadNote() = viewModelScope.launch {
-        noteId?.let {
-            viewModelScope.launch(IO) {
-                _noteDetailViewState.value = _noteDetailViewState.value.copy(
-                    note = repository.getNote(it.toLong())
-                )
+        noteId?.let { noteId ->
+            repository.getNote(noteId.toLong()).filterNotNull().collect { note ->
+                _noteDetailViewState.value = _noteDetailViewState.value.copy(note = note)
             }
         }
     }
@@ -60,14 +59,15 @@ class NoteDetailViewModel @Inject constructor(
     private fun updateNoteTitle(title: String) {
         val note = _noteDetailViewState.value.note.copy(title = title)
         _noteDetailViewState.value = _noteDetailViewState.value.copy(
-            showSaveIcon = true, note = note
+            note = note,
+            showSaveIcon = true
         )
     }
 
     private fun updateNoteDesc(desc: String) {
-        val note = _noteDetailViewState.value.note.copy(description = desc)
         _noteDetailViewState.value = _noteDetailViewState.value.copy(
-            showSaveIcon = true, note = note
+            note = _noteDetailViewState.value.note.copy(description = desc),
+            showSaveIcon = true
         )
     }
 

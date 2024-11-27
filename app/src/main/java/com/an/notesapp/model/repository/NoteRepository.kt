@@ -12,5 +12,5 @@ class NoteRepository @Inject constructor(
     suspend fun updateNote(note: Note) = noteDao.updateNote(note)
     suspend fun deleteNote(note: Note) = noteDao.deleteNote(note)
     fun getNotes(): Flow<List<Note>> = noteDao.fetchAllNotes()
-    suspend fun getNote(noteId: Long): Note = noteDao.getNote(noteId)
+    fun getNote(noteId: Long): Flow<Note> = noteDao.getNote(noteId)
 }

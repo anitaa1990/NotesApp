@@ -27,7 +27,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.notesapp.R
 import com.an.notesapp.intent.NoteIntent
-import com.an.notesapp.model.db.Note
 import com.an.notesapp.view.ui.component.ProvideAppBarAction
 import com.an.notesapp.view.ui.component.ProvideAppBarTitle
 import com.an.notesapp.view.ui.theme.noteTextStyle
@@ -39,23 +38,13 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
         lifecycleOwner = LocalLifecycleOwner.current
     )
 
-    NoteTitle(noteDetailViewState.value.note, viewModel)
-    NoteActionMenu(noteDetailViewState.value, viewModel)
-    NoteDescription(noteDetailViewState.value.note, viewModel)
-}
-
-@Composable
-private fun NoteTitle(
-    note: Note,
-    viewModel: NoteDetailViewModel
-) {
     ProvideAppBarTitle {
         // Note title
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 20.dp),
-            value = note.title,
+            value = noteDetailViewState.value.note.title,
             onValueChange = { viewModel.handleIntent(NoteIntent.UpdateNoteTitle(it)) },
             placeholder = { Text(stringResource(id = R.string.add_note_title)) },
             textStyle = MaterialTheme.typography.displaySmall,
@@ -68,13 +57,34 @@ private fun NoteTitle(
             )
         )
     }
-}
 
-@Composable
-private fun NoteDescription(
-    note: Note,
-    viewModel: NoteDetailViewModel
-) {
+    // Toolbar action buttons
+    ProvideAppBarAction {
+        // Delete button
+        if (noteDetailViewState.value.showDeleteIcon) {
+            IconButton(
+                onClick = { viewModel.handleIntent(NoteIntent.DeleteNote(noteDetailViewState.value.note)) }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        // Update/add button
+        if (noteDetailViewState.value.showSaveIcon) {
+            IconButton(onClick = { viewModel.handleIntent(NoteIntent.AddOrSaveNote) }) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+
     Box {
         Card (
             modifier = Modifier.padding(15.dp),
@@ -95,7 +105,7 @@ private fun NoteDescription(
                     modifier = Modifier
                         .fillMaxWidth()
                         .defaultMinSize(minHeight = 180.dp),
-                    value = note.description,
+                    value = noteDetailViewState.value.note.description,
                     onValueChange = { viewModel.handleIntent(NoteIntent.UpdateNoteDescription(it)) },
                     placeholder = { Text(stringResource(id = R.string.add_note_desc)) },
                     textStyle = noteTextStyle,
@@ -106,39 +116,6 @@ private fun NoteDescription(
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent
                     )
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun NoteActionMenu(
-    noteDetailUiState: NoteDetailViewModel.NoteDetailViewState,
-    viewModel: NoteDetailViewModel
-) {
-    // Toolbar action buttons
-    ProvideAppBarAction {
-        // Delete button
-        if (noteDetailUiState.showDeleteIcon) {
-            IconButton(
-                onClick = { viewModel.handleIntent(NoteIntent.DeleteNote(noteDetailUiState.note)) }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-
-        // Update/add button
-        if (noteDetailUiState.showSaveIcon) {
-            IconButton(onClick = { viewModel.handleIntent(NoteIntent.AddOrSaveNote) }) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
