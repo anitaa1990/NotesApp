@@ -23,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,7 +39,7 @@ import com.an.notesapp.view.ui.theme.noteTitleStyle
 @Composable
 fun PasswordBottomSheet(
     isNoteLocked: Boolean,
-//    errorMessageId: Int?,
+    errorMessageId: Int? = null,
     onDismissRequest: () -> Unit,
     onDoneRequest: (password: String) -> Unit
 ) {
@@ -100,12 +101,12 @@ fun PasswordBottomSheet(
                     }
                 },
                 supportingText = {
-//                    Text(
-//                        style = noteTextStyle,
-//                        color = Color.Red,
-//                        textAlign = TextAlign.Start,
-//                        text = errorMessageId?.let { stringResource(id = it) } ?: ""
-//                    )
+                    Text(
+                        style = noteTextStyle,
+                        color = Color.Red,
+                        textAlign = TextAlign.Start,
+                        text = errorMessageId?.let { stringResource(id = it) } ?: ""
+                    )
                 }
             )
 

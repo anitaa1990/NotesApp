@@ -96,6 +96,7 @@ fun NotesScreen(
     if (noteUiState.value.showPasswordSheet) {
         PasswordBottomSheet(
             isNoteLocked = true,
+            errorMessageId = noteUiState.value.passwordErrorResId,
             onDismissRequest = { noteUiState.value.copy(showPasswordSheet = false) },
             onDoneRequest = {
                 viewModel.handleIntent(NoteIntent.ValidatePassword(it))

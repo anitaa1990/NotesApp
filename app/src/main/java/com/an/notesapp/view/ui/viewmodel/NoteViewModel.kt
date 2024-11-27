@@ -1,5 +1,6 @@
 package com.an.notesapp.view.ui.viewmodel
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.an.notesapp.R
@@ -65,7 +66,9 @@ class NoteViewModel @Inject constructor(
     private fun validatePassword(password: String) {
         _notesViewState.value.selectedNote?.let { note ->
             if (password != note.password) {
-                EventManager.triggerEvent(AppEvent.ShowSnackbar(R.string.error_password))
+                _notesViewState.value = _notesViewState.value.copy(
+                    passwordErrorResId = R.string.error_password
+                )
             } else {
                 _notesViewState.value = _notesViewState.value.copy(showPasswordSheet = false)
                 EventManager.triggerEvent(AppEvent.NavigateToDetail(note.id))
@@ -77,6 +80,7 @@ class NoteViewModel @Inject constructor(
         val isLoading: Boolean = false,
         val notes: List<Note> = emptyList(),
         val selectedNote: Note? = null,
-        val showPasswordSheet: Boolean = false
+        val showPasswordSheet: Boolean = false,
+        @StringRes val passwordErrorResId: Int? = null
     )
 }
