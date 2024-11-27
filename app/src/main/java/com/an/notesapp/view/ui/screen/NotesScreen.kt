@@ -41,6 +41,7 @@ import com.an.notesapp.util.getDate
 import com.an.notesapp.util.getTime
 import com.an.notesapp.view.ui.component.EmptyScreen
 import com.an.notesapp.view.ui.component.LoadingItem
+import com.an.notesapp.view.ui.component.PasswordBottomSheet
 import com.an.notesapp.view.ui.component.ProvideAppBarTitle
 import com.an.notesapp.view.ui.theme.noteTextStyle
 import com.an.notesapp.view.ui.theme.noteTitleStyle
@@ -48,8 +49,7 @@ import com.an.notesapp.view.ui.viewmodel.NoteViewModel
 
 @Composable
 fun NotesScreen(
-    viewModel: NoteViewModel,
-    onNoteItemClicked: (noteId: Long) -> Unit
+    viewModel: NoteViewModel
 ) {
     val noteUiState = viewModel.notesViewState.collectAsStateWithLifecycle(
         lifecycleOwner = LocalLifecycleOwner.current
@@ -86,18 +86,28 @@ fun NotesScreen(
                 val note = notes[it]
                 NoteItem(
                     note = note,
-                    onNoteItemClicked = { onNoteItemClicked(it) },
+                    onNoteItemClicked = { viewModel.handleIntent(NoteIntent.OpenNoteClicked(it)) },
                     onNoteItemDeleted = { viewModel.handleIntent(NoteIntent.DeleteNote(it)) }
                 )
             }
         }
+    }
+
+    if (noteUiState.value.showPasswordSheet) {
+        PasswordBottomSheet(
+            isNoteLocked = true,
+            onDismissRequest = { noteUiState.value.copy(showPasswordSheet = false) },
+            onDoneRequest = {
+                viewModel.handleIntent(NoteIntent.ValidatePassword(it))
+            }
+        )
     }
 }
 
 @Composable
 fun NoteItem(
     note: Note,
-    onNoteItemClicked: (noteId: Long) -> Unit,
+    onNoteItemClicked: (note: Note) -> Unit,
     onNoteItemDeleted: (note: Note) -> Unit
 ) {
     val alpha = if (note.encrypt) 1f else 0f
@@ -108,7 +118,7 @@ fun NoteItem(
         Card (
             modifier = Modifier
                 .padding(bottom = 12.dp)
-                .clickable { onNoteItemClicked(note.id) },
+                .clickable { onNoteItemClicked(note) },
             shape = RectangleShape,
             elevation = CardDefaults.cardElevation(10.dp),
             colors = CardDefaults.cardColors(
@@ -154,7 +164,9 @@ fun NoteItem(
                 }
                 Text(
                     style = noteTextStyle,
-                    modifier = Modifier.padding(end = 10.dp).blur(blur),
+                    modifier = Modifier
+                        .padding(end = 10.dp)
+                        .blur(blur),
                     text = note.description,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     maxLines = 4,

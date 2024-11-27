@@ -29,7 +29,8 @@ class NoteViewModel @Inject constructor(
         when(intent) {
             is NoteIntent.LoadNotes -> loadNotes()
             is NoteIntent.DeleteNote -> deleteNote(intent.note)
-            is NoteIntent.AddNoteClicked -> EventManager.triggerEvent(AppEvent.NavigateToDetail)
+            is NoteIntent.OpenNoteClicked -> onNoteClicked(intent.note)
+            is NoteIntent.ValidatePassword -> validatePassword(intent.password)
             else -> {  }
         }
     }
@@ -50,9 +51,32 @@ class NoteViewModel @Inject constructor(
         }
     }
 
+    private fun onNoteClicked(note: Note) {
+        if (note.encrypt) {
+            _notesViewState.value = _notesViewState.value.copy(
+                selectedNote = note,
+                showPasswordSheet = true
+            )
+        } else {
+            EventManager.triggerEvent(AppEvent.NavigateToDetail(note.id))
+        }
+    }
+
+    private fun validatePassword(password: String) {
+        _notesViewState.value.selectedNote?.let { note ->
+            if (password != note.password) {
+                EventManager.triggerEvent(AppEvent.ShowSnackbar(R.string.error_password))
+            } else {
+                _notesViewState.value = _notesViewState.value.copy(showPasswordSheet = false)
+                EventManager.triggerEvent(AppEvent.NavigateToDetail(note.id))
+            }
+        }
+    }
+
     data class NotesViewState(
         val isLoading: Boolean = false,
         val notes: List<Note> = emptyList(),
-        val errorMessage: String = ""
+        val selectedNote: Note? = null,
+        val showPasswordSheet: Boolean = false
     )
 }

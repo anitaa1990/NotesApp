@@ -19,6 +19,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -31,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -60,18 +62,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             NotesAppTheme {
                 val context = LocalContext.current
-                val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-                    rememberTopAppBarState()
-                )
 
                 val navController = rememberNavController()
-                val currentBackStackEntry by navController.currentBackStackEntryAsState()
-                val showBackButton by remember(currentBackStackEntry) {
-                    derivedStateOf { navController.previousBackStackEntry != null }
-                }
-
                 val snackbarHostState = remember { SnackbarHostState() }
                 val coroutineScope = rememberCoroutineScope()
+
+                MainApp(
+                    navController = navController,
+                    snackbarHostState = snackbarHostState
+                )
 
                 // Observe the centralized event flow
                 LaunchedEffect(EventManager) {
@@ -88,65 +87,81 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                     is AppEvent.ExitScreen -> navController.navigateUp()
+                                    is AppEvent.NavigateToDetail -> {
+                                        navController.navigate(
+                                            ROUTE_DETAIL_PATH.replace(
+                                                "{$ROUTE_DETAIL_ARG_NAME}",
+                                                "${event.noteId}"
+                                            )
+                                        )
+                                    }
                                     else -> {  }
                                 }
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainApp(
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState
+) {
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
+        rememberTopAppBarState()
+    )
 
-                    Scaffold(
-                        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-                        topBar = {
-                            MainTopAppBar(
-                                navController = navController,
-                                showBackButton = showBackButton,
-                                scrollBehavior = scrollBehavior
-                            )
-                        },
-                        floatingActionButton = {
-                            if (!showBackButton) {
-                                FloatingActionButton(
-                                    shape = CircleShape,
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.primary,
-                                    onClick = { navController.navigate(ROUTE_DETAIL_PATH) }
-                                ) {
-                                    Icon(Icons.Default.Add, contentDescription = "Add")
-                                }
-                            }
-                        },
-                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                    ) { innerPadding ->
-                        NavHost(
-                            navController = navController,
-                            startDestination = ROUTE_HOME,
-                            modifier = Modifier.padding(innerPadding).fillMaxSize()
-                        ) {
-                            composable(route = ROUTE_HOME) {
-                                val noteViewModel = hiltViewModel<NoteViewModel>()
-                                NotesScreen(viewModel = noteViewModel) { noteId ->
-                                    navController.navigate(
-                                        ROUTE_DETAIL_PATH.replace(
-                                            "{$ROUTE_DETAIL_ARG_NAME}",
-                                            "$noteId"
-                                        )
-                                    )
-                                }
-                            }
-                            composable(
-                                route = ROUTE_DETAIL_PATH,
-                                arguments = listOf(
-                                    navArgument(ROUTE_DETAIL_ARG_NAME) { nullable = true },
-                                )
-                            ) {
-                                val noteDetailViewModel = hiltViewModel<NoteDetailViewModel>()
-                                NoteDetailScreen(noteDetailViewModel)
-                            }
-                        }
-                    }
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val showBackButton by remember(currentBackStackEntry) {
+        derivedStateOf { navController.previousBackStackEntry != null }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        topBar = {
+            MainTopAppBar(
+                navController = navController,
+                showBackButton = showBackButton,
+                scrollBehavior = scrollBehavior
+            )
+        },
+        floatingActionButton = {
+            if (!showBackButton) {
+                FloatingActionButton(
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = { navController.navigate(ROUTE_DETAIL_PATH) }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
                 }
+            }
+        },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = ROUTE_HOME,
+            modifier = Modifier.padding(innerPadding).fillMaxSize()
+        ) {
+            composable(route = ROUTE_HOME) {
+                val noteViewModel = hiltViewModel<NoteViewModel>()
+                NotesScreen(viewModel = noteViewModel)
+            }
+            composable(
+                route = ROUTE_DETAIL_PATH,
+                arguments = listOf(
+                    navArgument(ROUTE_DETAIL_ARG_NAME) { nullable = true },
+                )
+            ) {
+                val noteDetailViewModel = hiltViewModel<NoteDetailViewModel>()
+                NoteDetailScreen(noteDetailViewModel)
+            }
         }
     }
 }

@@ -11,5 +11,6 @@ sealed class NoteIntent {
     data class LockNote(val password: String): NoteIntent()
     data object UnLockNote: NoteIntent()
     data class DeleteNote(val note: Note) : NoteIntent()
-    data object AddNoteClicked: NoteIntent()
+    data class OpenNoteClicked(val note: Note): NoteIntent()
+    data class ValidatePassword(val password: String): NoteIntent()
 }
