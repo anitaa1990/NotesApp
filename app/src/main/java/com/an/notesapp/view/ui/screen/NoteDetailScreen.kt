@@ -13,6 +13,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -60,6 +62,22 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
 
     // Toolbar action buttons
     ProvideAppBarAction {
+        // Lock button
+        val resourceId = if (noteDetailViewState.value.note.encrypt) {
+            R.drawable.ic_lock
+        } else R.drawable.ic_lock_open
+
+        IconToggleButton(
+            checked = noteDetailViewState.value.note.encrypt,
+            onCheckedChange = {  }
+        ) {
+            Icon(
+                painter = painterResource(resourceId),
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
         // Delete button
         if (noteDetailViewState.value.showDeleteIcon) {
             IconButton(
