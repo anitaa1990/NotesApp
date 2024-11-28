@@ -76,6 +76,9 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    // Gson convertor
+    implementation(libs.gson.converter)
+
     // lifecycle compose
     implementation(libs.androidx.lifecycle.runtime.compose)
 

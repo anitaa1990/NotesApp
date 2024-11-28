@@ -17,6 +17,7 @@ coroutineTestVersion = "1.8.0"
 turbineVersion = "1.1.0"
 lifecycleRuntimeComposeAndroid = "2.8.7"
 material3Icons = "1.5.2"
+gson = "2.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -57,6 +58,9 @@ turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine
 
 ## Lifecycle Compose
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose-android", version.ref = "lifecycleRuntimeComposeAndroid" }
+
+## Gson
+gson-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "gson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
