@@ -3,6 +3,7 @@ package com.an.notesapp.model.db
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.an.notesapp.composetexteditor.editor.FormattingAction
 import java.time.OffsetDateTime
 
 /**
@@ -21,5 +22,6 @@ data class Note(
     @ColumnInfo(name = "created_at")
     val createdAt: OffsetDateTime = OffsetDateTime.now(),
     @ColumnInfo(name = "modified_at")
-    val modifiedAt: OffsetDateTime
+    val modifiedAt: OffsetDateTime,
+    val formats: Set<FormattingAction> = emptySet()
 )
