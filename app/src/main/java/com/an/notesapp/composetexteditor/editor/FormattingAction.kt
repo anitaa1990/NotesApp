@@ -1,15 +1,11 @@
 package com.an.notesapp.composetexteditor.editor
 
 enum class FormattingAction {
+    Heading,
+    SubHeading,
     Bold,
-    Italic,
+    Italics,
     Underline,
     Strikethrough,
-    Highlight,
-    Heading,
-    Subheading,
-    Body,
-    BulletList,
-    DashedList,
-    NumberedList
+    Highlight
 }
