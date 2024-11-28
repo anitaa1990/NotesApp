@@ -30,6 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.an.notesapp.R
 import com.an.notesapp.composetexteditor.editor.ComposeTextEditor
 import com.an.notesapp.composetexteditor.editor.FormattingAction
+import com.an.notesapp.composetexteditor.editor.FormattingSpan
 import com.an.notesapp.composetexteditor.toolbar.EditorToolbar
 import com.an.notesapp.intent.NoteIntent
 import com.an.notesapp.view.ui.component.PasswordBottomSheet
@@ -65,6 +66,7 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
     }
 
     var activeFormats by rememberSaveable { mutableStateOf(setOf<FormattingAction>()) }
+    var formattingSpans by remember { mutableStateOf(listOf<FormattingSpan>()) }
 
     Column {
         EditorToolbar(
@@ -83,9 +85,15 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
         )
 
         ComposeTextEditor(
-            text = noteDetailViewState.value.note.description,
+            annotatedString = noteDetailViewState.value.note.description,
+            formattingSpans = formattingSpans,
             activeFormats = activeFormats,
-            onTextChange = { viewModel.handleIntent(NoteIntent.UpdateNoteDescription(it)) },
+            onAnnotatedStringChange = { updatedAnnotatedString ->
+                viewModel.handleIntent(NoteIntent.UpdateNoteDescription(updatedAnnotatedString))
+            },
+            onFormattingSpansChange = { updatedSpans ->
+                formattingSpans = updatedSpans
+            },
             modifier = Modifier.padding(10.dp)
         )
     }

@@ -14,7 +14,7 @@ import androidx.room.TypeConverters
  *     define an abstract method that has zero arguments and returns an instance of the DAO class.
  */
 @Database(entities = [Note::class], version = 1, exportSchema = false)
-@TypeConverters(TimestampConverter::class, FormatSetTypeConverter::class)
+@TypeConverters(TimestampConverter::class, AnnotatedStringConverter::class)
 abstract class NoteDatabase: RoomDatabase() {
     abstract fun noteDao(): NoteDao
 }

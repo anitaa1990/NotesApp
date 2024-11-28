@@ -1,5 +1,6 @@
 package com.an.notesapp.view.ui.viewmodel
 
+import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -66,7 +67,7 @@ class NoteDetailViewModel @Inject constructor(
         )
     }
 
-    private fun updateNoteDesc(desc: String) {
+    private fun updateNoteDesc(desc: AnnotatedString) {
         _noteDetailViewState.value = _noteDetailViewState.value.copy(
             note = _noteDetailViewState.value.note.copy(description = desc),
             showSaveIcon = true
@@ -120,7 +121,7 @@ class NoteDetailViewModel @Inject constructor(
     }
 
     data class NoteDetailViewState(
-        val note: Note = Note(title = "", description = "", modifiedAt = OffsetDateTime.now()),
+        val note: Note = Note(title = "", description = AnnotatedString(text = ""), modifiedAt = OffsetDateTime.now()),
         val showDeleteIcon: Boolean,
         val showSaveIcon: Boolean = false
     )
