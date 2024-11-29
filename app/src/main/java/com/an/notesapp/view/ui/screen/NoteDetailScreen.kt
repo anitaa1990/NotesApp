@@ -86,7 +86,6 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
 
         ComposeTextEditor(
             annotatedString = noteDetailViewState.value.note.description,
-            formattingSpans = formattingSpans,
             activeFormats = activeFormats,
             onAnnotatedStringChange = { updatedAnnotatedString ->
                 viewModel.handleIntent(NoteIntent.UpdateNoteDescription(updatedAnnotatedString))

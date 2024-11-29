@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
@@ -13,7 +14,6 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ComposeTextEditor(
     annotatedString: AnnotatedString,
-    formattingSpans: List<FormattingSpan>,
     activeFormats: Set<FormattingAction>,
     onAnnotatedStringChange: (AnnotatedString) -> Unit,
     onFormattingSpansChange: (List<FormattingSpan>) -> Unit,
@@ -32,17 +32,29 @@ fun ComposeTextEditor(
     BasicTextField(
         value = textFieldValue,
         onValueChange = { newValue ->
-            val updatedSpans = updateFormattingSpans(
-                textFieldValue = newValue,
-                activeFormats = activeFormats,
-                currentSpans = formattingSpans
+            val newText = newValue.text
+
+            // Adjust spans for the updated text
+            val adjustedSpans = adjustSpansForNewText(
+                existingAnnotatedString = textFieldValue.annotatedString,
+                newText = newText
             )
 
-            val updatedAnnotatedString = applyFormattingSpans(newValue.text, updatedSpans)
+            // Add active formatting spans for the selected range or newly typed text
+            val updatedSpans = addActiveFormattingSpans(
+                currentSpans = adjustedSpans,
+                selectionStart = newValue.selection.start,
+                selectionEnd = newValue.selection.end,
+                activeFormats = activeFormats
+            )
 
+            // Create a new AnnotatedString with all spans applied
+            val updatedAnnotatedString = applyFormattingSpans(newText, updatedSpans)
+
+            // Update TextFieldValue
             textFieldValue = newValue.copy(annotatedString = updatedAnnotatedString)
 
-            // Notify parent about the updated AnnotatedString and spans
+            // Notify parent about the updates
             onAnnotatedStringChange(updatedAnnotatedString)
             onFormattingSpansChange(updatedSpans)
         },
@@ -112,24 +124,63 @@ private fun applyFormattingSpans(
     return builder.toAnnotatedString()
 }
 
-private fun updateFormattingSpans(
-    textFieldValue: TextFieldValue,
-    activeFormats: Set<FormattingAction>,
-    currentSpans: List<FormattingSpan>
+private fun adjustSpansForNewText(
+    existingAnnotatedString: AnnotatedString,
+    newText: String
 ): List<FormattingSpan> {
-    val selectionStart = textFieldValue.selection.start
-    val selectionEnd = textFieldValue.selection.end
+    val newTextLength = newText.length
 
-    // If no selection, apply to the last typed character
-    val rangeStart = if (selectionStart == selectionEnd && selectionStart > 0) selectionStart - 1 else selectionStart
-    val rangeEnd = selectionEnd
+    return existingAnnotatedString.spanStyles.mapNotNull { span ->
+        // Adjust start and end indices to fit the new text
+        val adjustedStart = span.start.coerceAtMost(newTextLength)
+        val adjustedEnd = span.end.coerceAtMost(newTextLength)
 
+        if (adjustedStart < adjustedEnd) {
+            // Convert AnnotatedString.Range into a FormattingSpan
+            FormattingSpan(
+                start = adjustedStart,
+                end = adjustedEnd,
+                formats = extractFormatsFromSpanStyle(span.item)
+            )
+        } else {
+            null // Remove invalid spans
+        }
+    }
+}
+
+private fun extractFormatsFromSpanStyle(spanStyle: SpanStyle): Set<FormattingAction> {
+    val formats = mutableSetOf<FormattingAction>()
+
+    if (spanStyle == BoldStyle) formats.add(FormattingAction.Bold)
+    if (spanStyle == ItalicsStyle) formats.add(FormattingAction.Italics)
+    if (spanStyle == UnderlineStyle) formats.add(FormattingAction.Underline)
+    if (spanStyle == StrikeThroughStyle) formats.add(FormattingAction.Strikethrough)
+    if (spanStyle == HighlightStyle) formats.add(FormattingAction.Highlight)
+    if (spanStyle == HeadingStyle) formats.add(FormattingAction.Heading)
+    if (spanStyle == SubtitleStyle) formats.add(FormattingAction.SubHeading)
+
+    return formats
+}
+
+private fun addActiveFormattingSpans(
+    currentSpans: List<FormattingSpan>,
+    selectionStart: Int,
+    selectionEnd: Int,
+    activeFormats: Set<FormattingAction>
+): List<FormattingSpan> {
     val updatedSpans = currentSpans.toMutableList()
 
-    // Add new formatting spans for the selected range
-    if (rangeStart != rangeEnd) {
-        val newSpan = FormattingSpan(rangeStart, rangeEnd, activeFormats.toSet())
-        updatedSpans.add(newSpan)
+    if (selectionStart != selectionEnd && activeFormats.isNotEmpty()) {
+        // Add formatting for the selected range
+        updatedSpans.add(
+            FormattingSpan(selectionStart, selectionEnd, activeFormats)
+        )
+    } else if (activeFormats.isNotEmpty() && selectionStart > 0) {
+        // Apply active formats to the last character typed
+        val lastCharIndex = selectionStart - 1
+        updatedSpans.add(
+            FormattingSpan(lastCharIndex, selectionStart, activeFormats)
+        )
     }
 
     return updatedSpans
