@@ -1,10 +1,16 @@
 package com.an.notesapp.model.db
 
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.room.TypeConverter
+import com.an.notesapp.composetexteditor.editor.BoldStyle
+import com.an.notesapp.composetexteditor.editor.DefaultStyle
+import com.an.notesapp.composetexteditor.editor.FormattingAction
+import com.an.notesapp.composetexteditor.editor.HeadingStyle
+import com.an.notesapp.composetexteditor.editor.HighlightStyle
+import com.an.notesapp.composetexteditor.editor.ItalicsStyle
+import com.an.notesapp.composetexteditor.editor.StrikeThroughStyle
+import com.an.notesapp.composetexteditor.editor.SubtitleStyle
+import com.an.notesapp.composetexteditor.editor.UnderlineStyle
 import com.google.gson.Gson
 
 class AnnotatedStringConverter {
@@ -16,9 +22,16 @@ class AnnotatedStringConverter {
                 start = it.start,
                 end = it.end,
                 style = SpanStyleData(
-                    fontWeight = it.item.fontWeight?.weight,
-                    fontStyle = it.item.fontStyle?.toSerializedString(),
-                    textDecoration = it.item.textDecoration?.toSerializedString()
+                    tag = when (it.item) {
+                        HighlightStyle -> FormattingAction.Highlight.name
+                        HeadingStyle -> FormattingAction.Heading.name
+                        SubtitleStyle -> FormattingAction.SubHeading.name
+                        BoldStyle -> FormattingAction.Bold.name
+                        ItalicsStyle -> FormattingAction.Italics.name
+                        UnderlineStyle -> FormattingAction.Underline.name
+                        StrikeThroughStyle -> FormattingAction.Strikethrough.name
+                        else -> null
+                    }
                 )
             )
         }
@@ -30,48 +43,22 @@ class AnnotatedStringConverter {
         val annotatedStringData = Gson().fromJson(value, AnnotatedStringData::class.java)
         val spanStyles = annotatedStringData.spans.map {
             AnnotatedString.Range(
-                item = SpanStyle(
-                    fontWeight = it.style?.fontWeight?.let { weight -> androidx.compose.ui.text.font.FontWeight(weight) },
-                    fontStyle = it.style?.fontStyle?.toFontStyle(),
-                    textDecoration = it.style?.textDecoration?.toTextDecoration()
-                ),
+                item = when (it.style?.tag) {
+                    FormattingAction.Highlight.name -> HighlightStyle
+                    FormattingAction.Heading.name -> HeadingStyle
+                    FormattingAction.SubHeading.name -> SubtitleStyle
+                    FormattingAction.Bold.name -> BoldStyle
+                    FormattingAction.Italics.name -> ItalicsStyle
+                    FormattingAction.Underline.name -> UnderlineStyle
+                    FormattingAction.Strikethrough.name -> StrikeThroughStyle
+                    else -> DefaultStyle
+                },
                 start = it.start,
                 end = it.end
             )
         }
         return AnnotatedString(annotatedStringData.text, spanStyles)
     }
-}
-
-/**
- * Utility functions for FontStyle serialization.
- */
-fun FontStyle.toSerializedString(): String = when (this) {
-    FontStyle.Normal -> "Normal"
-    FontStyle.Italic -> "Italic"
-    else -> "None" // Default to "None" for unsupported cases
-}
-
-fun String.toFontStyle(): FontStyle = when (this) {
-    "Normal" -> FontStyle.Normal
-    "Italic" -> FontStyle.Italic
-    else -> FontStyle.Normal // Default to Normal
-}
-
-/**
- * Utility functions for TextDecoration serialization.
- */
-fun TextDecoration.toSerializedString(): String = when (this) {
-    TextDecoration.Underline -> "Underline"
-    TextDecoration.LineThrough -> "LineThrough"
-    else -> "None" // Default to "None" for unsupported cases
-}
-
-fun String.toTextDecoration(): TextDecoration? = when (this) {
-    "Underline" -> TextDecoration.Underline
-    "LineThrough" -> TextDecoration.LineThrough
-    "None" -> null
-    else -> null
 }
 
 // Data classes for JSON serialization
@@ -87,7 +74,5 @@ data class AnnotatedStringSpan(
 )
 
 data class SpanStyleData(
-    val fontWeight: Int?,
-    val fontStyle: String?, // Store FontStyle as a string
-    val textDecoration: String? // Store TextDecoration as a string
+    val tag: String? // Use a tag like "Heading", "Subtitle", or "Highlight"
 )

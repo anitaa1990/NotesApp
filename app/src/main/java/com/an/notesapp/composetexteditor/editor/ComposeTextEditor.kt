@@ -6,12 +6,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 
 @Composable
@@ -75,37 +71,37 @@ private fun applyFormattingSpans(
         span.formats.forEach { format ->
             when (format) {
                 FormattingAction.Bold -> builder.addStyle(
-                    style = SpanStyle(fontWeight = FontWeight.Bold),
+                    style = BoldStyle,
                     start = span.start,
                     end = span.end
                 )
                 FormattingAction.Italics -> builder.addStyle(
-                    style = SpanStyle(fontStyle = FontStyle.Italic),
+                    style = ItalicsStyle,
                     start = span.start,
                     end = span.end
                 )
                 FormattingAction.Underline -> builder.addStyle(
-                    style = SpanStyle(textDecoration = TextDecoration.Underline),
+                    style = UnderlineStyle,
                     start = span.start,
                     end = span.end
                 )
                 FormattingAction.Strikethrough -> builder.addStyle(
-                    style = SpanStyle(textDecoration = TextDecoration.LineThrough),
+                    style = StrikeThroughStyle,
                     start = span.start,
                     end = span.end
                 )
                 FormattingAction.Highlight -> builder.addStyle(
-                    style = SpanStyle(background = Color.Yellow),
+                    style = HighlightStyle,
                     start = span.start,
                     end = span.end
                 )
                 FormattingAction.Heading -> builder.addStyle(
-                    style = SpanStyle(fontSize = 24.sp),
+                    style = HeadingStyle,
                     start = span.start,
                     end = span.end
                 )
                 FormattingAction.SubHeading -> builder.addStyle(
-                    style = SpanStyle(fontSize = 20.sp),
+                    style = SubtitleStyle,
                     start = span.start,
                     end = span.end
                 )
