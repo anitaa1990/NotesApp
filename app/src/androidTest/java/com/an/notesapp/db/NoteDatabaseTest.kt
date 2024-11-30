@@ -1,17 +1,22 @@
 package com.an.notesapp.db
 
+import androidx.compose.ui.text.AnnotatedString
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.an.notesapp.model.db.Note
 import com.an.notesapp.model.db.NoteDatabase
 import junit.framework.TestCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.OffsetDateTime
+import java.util.concurrent.CountDownLatch
 
 @RunWith(AndroidJUnit4::class)
 class NoteDatabaseTest: TestCase() {
@@ -52,7 +57,7 @@ class NoteDatabaseTest: TestCase() {
         val note = Note(
             id = 1,
             title = "Test",
-            description = "Testing new note",
+            description = AnnotatedString(text = "Testing new note"),
             encrypt = false,
             password = "",
             createdAt = OffsetDateTime.now(),
@@ -60,9 +65,15 @@ class NoteDatabaseTest: TestCase() {
         )
         dao.insertNote(note)
 
-        val storedNotes = dao.fetchAllNotes()
-        assertTrue(storedNotes.size == 1)
-        assertEquals(storedNotes[0], note)
+        val latch = CountDownLatch(1)
+        val job = async(Dispatchers.IO) {
+            dao.fetchAllNotes().collect {
+                assertEquals(it.first(), note)
+                latch.countDown()
+            }
+        }
+        latch.await()
+        job.cancelAndJoin()
     }
 
     @Test
@@ -71,7 +82,7 @@ class NoteDatabaseTest: TestCase() {
         val note = Note(
             id = 1,
             title = "Test",
-            description = "Testing new note",
+            description = AnnotatedString(text = "Testing new note"),
             encrypt = false,
             password = "",
             createdAt = OffsetDateTime.now(),
@@ -82,17 +93,26 @@ class NoteDatabaseTest: TestCase() {
         // create updated note
         val updatedNote = note.copy(
             title = "Test 2",
-            description = "Testing updating note",
+            description = AnnotatedString(text = "Testing updating note"),
             modifiedAt = OffsetDateTime.now()
         )
 
         // update
         dao.updateNote(updatedNote)
 
-        // get note and assert if it equals to updated word
-        val storedNote = dao.getNote(updatedNote.id)
-        assertEquals(storedNote, updatedNote)
-        assertNotSame(storedNote, note)
+        // get note and assert if it equals to updated note
+        val latch = CountDownLatch(1)
+        val job = async(Dispatchers.IO) {
+            // get note and assert if it equals to updated word
+            dao.getNote(updatedNote.id).collect {
+                assertEquals(it, updatedNote)
+                assertNotSame(it, note)
+
+                latch.countDown()
+            }
+        }
+        latch.await()
+        job.cancelAndJoin()
     }
 
     @Test
@@ -100,7 +120,7 @@ class NoteDatabaseTest: TestCase() {
         val note1 = Note(
             id = 3,
             title = "Test",
-            description = "Testing new note",
+            description = AnnotatedString(text = "Testing new note"),
             encrypt = false,
             password = "",
             createdAt = OffsetDateTime.now(),
@@ -109,7 +129,7 @@ class NoteDatabaseTest: TestCase() {
         val note2 = Note(
             id = 4,
             title = "Test2",
-            description = "Testing new note 2",
+            description = AnnotatedString(text = "Testing new note 2"),
             encrypt = true,
             password = "anitaa1990",
             createdAt = OffsetDateTime.now(),
@@ -121,9 +141,16 @@ class NoteDatabaseTest: TestCase() {
 
         dao.deleteNote(note1)
 
-        val storedNotes = dao.fetchAllNotes()
-        assertEquals(storedNotes.size, 1)
-        assertEquals(storedNotes.first(), note2)
-        assertNotSame(storedNotes.first(), note1)
+        val latch = CountDownLatch(1)
+        val job = async(Dispatchers.IO) {
+            dao.fetchAllNotes().collect {
+                assertEquals(it.size, 1)
+                assertEquals(it.first(), note2)
+                assertNotSame(it.first(), note1)
+                latch.countDown()
+            }
+        }
+        latch.await()
+        job.cancelAndJoin()
     }
 }
