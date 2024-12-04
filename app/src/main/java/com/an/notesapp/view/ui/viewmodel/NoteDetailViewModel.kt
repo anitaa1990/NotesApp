@@ -91,6 +91,7 @@ class NoteDetailViewModel @Inject constructor(
     fun addNote() {
         viewModelScope.launch(IO) {
             val note = _noteDetailViewState.value.note.copy(
+                title = _noteDetailViewState.value.note.title.trim(),
                 createdAt = OffsetDateTime.now(),
                 modifiedAt = OffsetDateTime.now()
             )
@@ -103,6 +104,7 @@ class NoteDetailViewModel @Inject constructor(
     fun saveNote() {
         viewModelScope.launch(IO) {
             val updatedNote = _noteDetailViewState.value.note.copy(
+                title = _noteDetailViewState.value.note.title.trim(),
                 modifiedAt = OffsetDateTime.now()
             )
             repository.updateNote(updatedNote)

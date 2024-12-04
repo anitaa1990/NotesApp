@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
@@ -27,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -77,8 +80,9 @@ fun NotesScreen(
     } else {
         // Show notes screen
         LazyVerticalStaggeredGrid(
-            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 12.dp, end = 12.dp),
+            modifier = Modifier.fillMaxSize().padding(top = 10.dp, bottom = 10.dp, start = 12.dp, end = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalItemSpacing = 16.dp,
             columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
         ) {
             val notes = noteUiState.value.notes
@@ -97,7 +101,9 @@ fun NotesScreen(
         PasswordBottomSheet(
             isNoteLocked = true,
             errorMessageId = noteUiState.value.passwordErrorResId,
-            onDismissRequest = { noteUiState.value.copy(showPasswordSheet = false) },
+            onDismissRequest = {
+                viewModel.handleIntent(NoteIntent.DismissPasswordSheet)
+            },
             onDoneRequest = {
                 viewModel.handleIntent(NoteIntent.ValidatePassword(it))
             }
@@ -118,9 +124,9 @@ fun NoteItem(
     ) {
         Card (
             modifier = Modifier
-                .padding(bottom = 12.dp)
+                .clip(RoundedCornerShape(8.dp))
                 .clickable { onNoteItemClicked(note) },
-            shape = RectangleShape,
+            shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.cardElevation(10.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.onPrimary

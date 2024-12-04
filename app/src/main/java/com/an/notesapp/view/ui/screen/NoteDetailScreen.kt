@@ -49,8 +49,7 @@ fun NoteDetailScreen(viewModel: NoteDetailViewModel) {
         // Note title
         TextField(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
+                .fillMaxWidth(),
             value = noteDetailViewState.value.note.title,
             onValueChange = { viewModel.handleIntent(NoteIntent.UpdateNoteTitle(it)) },
             placeholder = { Text(stringResource(id = R.string.add_note_title)) },
