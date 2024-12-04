@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -80,6 +82,7 @@ fun NotesScreen(
         LazyVerticalStaggeredGrid(
             modifier = Modifier.fillMaxSize().padding(top = 10.dp, bottom = 10.dp, start = 12.dp, end = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalItemSpacing = 16.dp,
             columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
         ) {
             val notes = noteUiState.value.notes
@@ -121,9 +124,9 @@ fun NoteItem(
     ) {
         Card (
             modifier = Modifier
-                .padding(bottom = 12.dp)
+                .clip(RoundedCornerShape(8.dp))
                 .clickable { onNoteItemClicked(note) },
-            shape = RectangleShape,
+            shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.cardElevation(10.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.onPrimary

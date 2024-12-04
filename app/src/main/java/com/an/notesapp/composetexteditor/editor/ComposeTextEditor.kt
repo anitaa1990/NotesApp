@@ -1,5 +1,6 @@
 package com.an.notesapp.composetexteditor.editor
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -60,7 +61,7 @@ fun ComposeTextEditor(
         },
         textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
         cursorBrush = SolidColor(Color.Black),
-        modifier = modifier
+        modifier = modifier.fillMaxSize()
     )
 }
 
