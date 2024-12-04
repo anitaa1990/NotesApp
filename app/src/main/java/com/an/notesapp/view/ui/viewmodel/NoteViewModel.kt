@@ -32,6 +32,9 @@ class NoteViewModel @Inject constructor(
             is NoteIntent.DeleteNote -> deleteNote(intent.note)
             is NoteIntent.OpenNoteClicked -> onNoteClicked(intent.note)
             is NoteIntent.ValidatePassword -> validatePassword(intent.password)
+            is NoteIntent.DismissPasswordSheet -> {
+                _notesViewState.value = _notesViewState.value.copy(showPasswordSheet = false)
+            }
             else -> {  }
         }
     }

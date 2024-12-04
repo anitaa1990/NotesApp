@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -77,7 +78,7 @@ fun NotesScreen(
     } else {
         // Show notes screen
         LazyVerticalStaggeredGrid(
-            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 12.dp, end = 12.dp),
+            modifier = Modifier.fillMaxSize().padding(top = 10.dp, bottom = 10.dp, start = 12.dp, end = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             columns = StaggeredGridCells.Adaptive(minSize = 140.dp),
         ) {
@@ -97,7 +98,9 @@ fun NotesScreen(
         PasswordBottomSheet(
             isNoteLocked = true,
             errorMessageId = noteUiState.value.passwordErrorResId,
-            onDismissRequest = { noteUiState.value.copy(showPasswordSheet = false) },
+            onDismissRequest = {
+                viewModel.handleIntent(NoteIntent.DismissPasswordSheet)
+            },
             onDoneRequest = {
                 viewModel.handleIntent(NoteIntent.ValidatePassword(it))
             }
